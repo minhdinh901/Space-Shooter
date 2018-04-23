@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 	<head>
@@ -288,8 +287,14 @@
 					snakeEnemies[i].frameNum++;
 					if(snakeEnemies[i].frameNum>=0 && snakeEnemies[i].frameNum<10){
 						snakeEnemies[i].x-=5;
-					}else if(snakeEnemies[i].frameNum>=0 && snakeEnemies[i].frameNum<10)
-					snakeEnemies[i].update();
+					}else if(snakeEnemies[i].frameNum>=10 && snakeEnemies[i].frameNum<20){
+            snakeEnemies[i].y+=5;
+          }else if(snakeEnemies[i].frameNum>=20 && snakeEnemies[i].frameNum<30){
+            snakeEnemies[i].x-=5;
+          }else if(snakeEnemies[i].frameNum>=30 && snakeEnemies[i].frameNum<40){
+            snakeEnemies[i].y-=5;
+          }
+          snakeEnemies[i].update();
 				}
 				
 				score.update();
