@@ -262,24 +262,13 @@
 						snakeChain = spawnpoint;
 						snakeEnemies.push(new rectangleModel(20, 20, "#000000", x, snakeChain));
 						snakeDelay = gameArea.frameNum;
-					}else if(gameArea.frameNum==snakeDelay+5){
-						snakeEnemies.push(new rectangleModel(20, 20, "#000000", x, snakeChain));
-					}else if(gameArea.frameNum==snakeDelay+10){
-						snakeEnemies.push(new rectangleModel(20, 20, "#000000", x, snakeChain));
-					}else if(gameArea.frameNum==snakeDelay+15){
-						snakeEnemies.push(new rectangleModel(20, 20, "#000000", x, snakeChain));
-					}else if(gameArea.frameNum==snakeDelay+20){
-						snakeEnemies.push(new rectangleModel(20, 20, "#000000", x, snakeChain));
-					}else if(gameArea.frameNum==snakeDelay+25){
-						snakeEnemies.push(new rectangleModel(20, 20, "#000000", x, snakeChain));
-					}else if(gameArea.frameNum==snakeDelay+30){
-						snakeEnemies.push(new rectangleModel(20, 20, "#000000", x, snakeChain));
-					}else if(gameArea.frameNum==snakeDelay+35){
-						snakeEnemies.push(new rectangleModel(20, 20, "#000000", x, snakeChain));
-					}else if(gameArea.frameNum==snakeDelay+40){
-						snakeEnemies.push(new rectangleModel(20, 20, "#000000", x, snakeChain));
-					}else if(gameArea.frameNum==snakeDelay+45){
-						snakeEnemies.push(new rectangleModel(20, 20, "#000000", x, snakeChain));
+					}else{
+						for(var i=0;i<8;i++){
+							if(gameArea.frameNum==snakeDelay+5){
+								snakeEnemies.push(new rectangleModel(20, 20, "#000000", x, snakeChain));
+								snakeDelay = gameArea.frameNum;
+							}
+						}
 					}
 				}
 				//UPDATE THIS
