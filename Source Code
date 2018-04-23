@@ -274,6 +274,10 @@
 				//UPDATE THIS
 				for(var i=0;i<snakeEnemies.length;i++){
 					snakeEnemies[i].frameNum++;
+					moveDelay = gameArea.frameNum;
+					if(gameArea.frameNum==moveDelay+10){
+					
+					}
 					if(snakeEnemies[i].frameNum>=0 && snakeEnemies[i].frameNum<10){
 						snakeEnemies[i].x-=5;
 					}else if(snakeEnemies[i].frameNum>=10 && snakeEnemies[i].frameNum<20){
