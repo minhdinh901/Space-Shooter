@@ -33,6 +33,7 @@
 			var snakeEnemies = [];
 			var snakeChain;
 			var snakeDelay;
+			var snakeCycle = 0;
 			
 			function runGame(){
 				gameArea.start();
@@ -105,7 +106,7 @@
 				player.update();
 				
 				//player shooting
-				if(gameArea.keys && gameArea.keys[32]){
+				if(gameArea.keys && gameArea.keys[32] && invulnerability==false){
 					isShooting = true;
 					shotFrame++;
 					if(isShooting && (shotFrame==1 || shotFrame%15==0)){
@@ -271,23 +272,26 @@
 						}
 					}
 				}
-				//UPDATE THIS
+				//FIX THIS
 				for(var i=0;i<snakeEnemies.length;i++){
 					snakeEnemies[i].frameNum++;
 					moveDelay = gameArea.frameNum;
 					if(gameArea.frameNum==moveDelay+10){
-					
+						snakeCycle++;
+						if(snakeCycle==3){
+							snakeCycle==0;
+						}
 					}
-					if(snakeEnemies[i].frameNum>=0 && snakeEnemies[i].frameNum<10){
+					if(snakeCycle==0){
 						snakeEnemies[i].x-=5;
-					}else if(snakeEnemies[i].frameNum>=10 && snakeEnemies[i].frameNum<20){
-            snakeEnemies[i].y+=5;
-          }else if(snakeEnemies[i].frameNum>=20 && snakeEnemies[i].frameNum<30){
-            snakeEnemies[i].x-=5;
-          }else if(snakeEnemies[i].frameNum>=30 && snakeEnemies[i].frameNum<40){
-            snakeEnemies[i].y-=5;
-          }
-          snakeEnemies[i].update();
+					}else if(snakeCycle==1){
+						snakeEnemies[i].y+=5;
+					}else if(snakeCycle==2){
+						snakeEnemies[i].x-=5;
+					}else if(snakeCycle==3){
+						snakeEnemies[i].y-=5;
+					}
+					snakeEnemies[i].update();
 				}
 				
 				score.update();
