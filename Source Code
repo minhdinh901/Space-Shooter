@@ -34,8 +34,10 @@
 			var snakeCount;
 			var snakeY;
 			var blob1Enemies = [];
-			var blob2Enemies = [];
-			var blob3Enemies = [];
+			var blobTop2Enemies = [];
+			var blobBottom2Enemies = [];
+			var blobTop3Enemies = [];
+			var blobBottom3Enemies = [];
 			
 			function runGame(){
 				gameArea.start();
@@ -308,9 +310,9 @@
 					blob1Enemies.push(new rectangleModel(40, 40, "#A6E1A1", x, y));
 				}
 				for(var i=0;i<blob1Enemies.length;i++){
+					blob1Enemies[i].frameNum++;
 					blob1Enemies[i].x-=1;
 					blob1Enemies[i].update();
-					blob1Enemies[i].frameNum++;
 				}
 				for(var i=0;i<blob2Enemies.length;i++){
 					blob2Enemies[i].x-=2;
@@ -635,7 +637,8 @@
 								points+=40;
 								x = blob1Enemies[k].x+6;
 								y = blob1Enemies[k].y+6;
-								blob2Enemies.push(new rectangleModel(28, 28, "#A6E1A1", x, y));
+								blobTop2Enemies.push(new rectangleModel(28, 28, "#A6E1A1", x, y));
+								blobBottom2Enemies.push(new rectangleModel(28, 28, "#A6E1A1", x, y));
 								blob1Enemies.splice(k, 1);
 							}
 							playerBullets.splice(i, 1);
@@ -652,7 +655,8 @@
 								points+=20;
 								x = blob2Enemies[k].x+4;
 								y = blob2Enemies[k].y+4;
-								blob3Enemies.push(new rectangleModel(20, 20, "#A6E1A1", x, y));
+								blobTop3Enemies.push(new rectangleModel(20, 20, "#A6E1A1", x, y));
+								blobBottom3Enemies.push(new rectangleModel(20, 20, "#A6E1A1", x, y));
 								blob2Enemies.splice(k, 1);
 							}
 							playerBullets.splice(i, 1);
