@@ -31,9 +31,11 @@
 			var lateralBottomBullets = [];
 			var bouncerEnemies = [];
 			var snakeEnemies = [];
-			var snakeChain;
-			var snakeDelay;
-			var snakeCycle = 0;
+			var snakeCount;
+			var snakeY;
+			var blob1Enemies = [];
+			var blob2Enemies = [];
+			var blob3Enemies = [];
 			
 			function runGame(){
 				gameArea.start();
@@ -120,13 +122,13 @@
 				if(invulnerability==true){
 					if(player.frameNum>=0 && player.frameNum<60){
 						player.frameNum++;
-						player.color = "#91ADFF";
+						player.color = "#B5C7FF";
 					}else if(player.frameNum>=60 && player.frameNum<120){
 						player.frameNum++;
-						player.color = "#6E92FF";
+						player.color = "#8DA9FF";
 					}else if(player.frameNum>=120 && player.frameNum<180){
 						player.frameNum++;
-						player.color = "#4573FF";
+						player.color = "#7093FF";
 					}else{
 						player.frameNum = 0;
 						player.color = "#1a53ff";
@@ -256,43 +258,74 @@
 				playerBouncerCollision();
 				
 				//snake spawning and movement
-				if(gameArea.frameNum>=0){
+				if(gameArea.frameNum>=7200){
 					x = gameArea.canvas.width;
-					spawnpoint = randomInt(0, 556);
-					if(objectInterval(100)){
-						snakeChain = spawnpoint;
-						snakeEnemies.push(new rectangleModel(20, 20, "#000000", x, snakeChain));
+					spawnpoint = randomInt(0, 506);
+					if(objectInterval(900)){
+						snakeY = spawnpoint;
+						snakeEnemies.push(new rectangleModel(20, 20, "#D10F0F", x, snakeY));
 						snakeDelay = gameArea.frameNum;
+						snakeCount = 0;
 					}else{
-						for(var i=0;i<8;i++){
+						if(snakeCount<14){
 							if(gameArea.frameNum==snakeDelay+5){
-								snakeEnemies.push(new rectangleModel(20, 20, "#000000", x, snakeChain));
+								snakeEnemies.push(new rectangleModel(20, 20, "#29AF35", x, snakeY));
 								snakeDelay = gameArea.frameNum;
+								snakeCount++;
 							}
 						}
 					}
 				}
-				//FIX THIS
 				for(var i=0;i<snakeEnemies.length;i++){
 					snakeEnemies[i].frameNum++;
-					moveDelay = gameArea.frameNum;
-					if(gameArea.frameNum==moveDelay+10){
-						snakeCycle++;
-						if(snakeCycle==3){
-							snakeCycle==0;
+					if(snakeEnemies[i].frameNum%10==0){
+						snakeEnemies[i].snakeCycle++;
+						if(snakeEnemies[i].snakeCycle==4){
+							snakeEnemies[i].snakeCycle = 0;
 						}
 					}
-					if(snakeCycle==0){
-						snakeEnemies[i].x-=5;
-					}else if(snakeCycle==1){
-						snakeEnemies[i].y+=5;
-					}else if(snakeCycle==2){
-						snakeEnemies[i].x-=5;
-					}else if(snakeCycle==3){
-						snakeEnemies[i].y-=5;
+					if(snakeEnemies[i].frameNum%5==0){
+						if(snakeEnemies[i].snakeCycle==0){
+							snakeEnemies[i].x-=25;
+						}else if(snakeEnemies[i].snakeCycle==1){
+							snakeEnemies[i].y+=25;
+						}else if(snakeEnemies[i].snakeCycle==2){
+							snakeEnemies[i].x-=25;
+						}else if(snakeEnemies[i].snakeCycle==3){
+							snakeEnemies[i].y-=25;
+						}
 					}
 					snakeEnemies[i].update();
 				}
+				snakeOut();
+				snakeBulletCollision();
+				playerSnakeCollision();
+				
+				//blob spawning and movement
+				if(objectInterval(90)){	
+					x = gameArea.canvas.width;
+					y = randomInt(0, 544);
+					blob1Enemies.push(new rectangleModel(40, 40, "#A6E1A1", x, y));
+				}
+				for(var i=0;i<blob1Enemies.length;i++){
+					blob1Enemies[i].x-=1;
+					blob1Enemies[i].update();
+					blob1Enemies[i].frameNum++;
+				}
+				for(var i=0;i<blob2Enemies.length;i++){
+					blob2Enemies[i].x-=2;
+					blob2Enemies[i].update();
+					blob2Enemies[i].frameNum++;
+				}
+				for(var i=0;i<blob3Enemies.length;i++){
+					blob3Enemies[i].x-=4;
+					blob3Enemies[i].update();
+					blob3Enemies[i].frameNum++;
+				}
+				blobOut();
+				blobBulletCollision();
+				//add player-blob collision
+				//fix blob splitting
 				
 				score.update();
 				life.update();
@@ -371,7 +404,6 @@
 					   player.y < basicEnemies[i].y + basicEnemies[i].height &&
 					   player.height + player.y > basicEnemies[i].y &&
 					   invulnerability==false){
-						basicEnemies.splice(i, 1);	
 						death();
 					}
 				}
@@ -411,7 +443,6 @@
 					   player.y < chargerEnemies[i].y + chargerEnemies[i].height &&
 					   player.height + player.y > chargerEnemies[i].y &&
 					   invulnerability==false){
-						chargerEnemies.splice(i, 1);	
 						death();
 					}
 				}
@@ -492,8 +523,7 @@
 					   player.x + player.width > lateralEnemies[i].x &&
 					   player.y < lateralEnemies[i].y + lateralEnemies[i].height &&
 					   player.height + player.y > lateralEnemies[i].y &&
-					   invulnerability==false){
-						lateralEnemies.splice(i, 1);	
+					   invulnerability==false){	
 						death();
 					}
 				}
@@ -533,8 +563,111 @@
 					   player.y < bouncerEnemies[i].y + bouncerEnemies[i].height &&
 					   player.height + player.y > bouncerEnemies[i].y &&
 					   invulnerability==false){
-						bouncerEnemies.splice(i, 1);	
 						death();
+					}
+				}
+			}
+			
+			function snakeOut(){
+				for(var i=0;i<snakeEnemies.length;i++){
+					if(snakeEnemies[i].x+20<0){
+						snakeEnemies.splice(i, 1);
+					}
+				}
+			}
+			
+			function snakeBulletCollision(){
+				for(var i=playerBullets.length-1;i>=0;i--){
+					for(var k=snakeEnemies.length-1;k>=0;k--){
+						if(playerBullets[i].x < snakeEnemies[k].x + snakeEnemies[k].width &&
+						   playerBullets[i].x + playerBullets[i].width > snakeEnemies[k].x &&
+						   playerBullets[i].y < snakeEnemies[k].y + snakeEnemies[k].height &&
+						   playerBullets[i].height + playerBullets[i].y > snakeEnemies[k].y &&
+						   invulnerability==false){
+							snakeEnemies.splice(k, 1);
+							playerBullets.splice(i, 1);
+							points+=10;
+						}
+					}
+				}
+			}
+			
+			function playerSnakeCollision(){
+				for(var i=0;i<snakeEnemies.length;i++){
+					if(player.x < snakeEnemies[i].x + snakeEnemies[i].width &&
+					   player.x + player.width > snakeEnemies[i].x &&
+					   player.y < snakeEnemies[i].y + snakeEnemies[i].height &&
+					   player.height + player.y > snakeEnemies[i].y &&
+					   invulnerability==false){
+						death();
+					}
+				}
+			}
+			
+			function blobOut(){
+				for(var i=0;i<blob1Enemies.length;i++){
+					if(blob1Enemies[i].x+40<0){
+						blob1Enemies.splice(i, 1);
+					}
+				}
+				for(var i=0;i<blob2Enemies.length;i++){
+					if(blob2Enemies[i].x+28<0){
+						blob2Enemies.splice(i, 1);
+					}
+				}
+				for(var i=0;i<blob3Enemies.length;i++){
+					if(blob3Enemies[i].x+20<0){
+						blob3Enemies.splice(i, 1);
+					}
+				}
+			}
+			
+			function blobBulletCollision(){
+				for(var i=playerBullets.length-1;i>=0;i--){
+					for(var k=blob1Enemies.length-1;k>=0;k--){
+						if(playerBullets[i].x < blob1Enemies[k].x + blob1Enemies[k].width &&
+						   playerBullets[i].x + playerBullets[i].width > blob1Enemies[k].x &&
+						   playerBullets[i].y < blob1Enemies[k].y + blob1Enemies[k].height &&
+						   playerBullets[i].height + playerBullets[i].y > blob1Enemies[k].y &&
+						   invulnerability==false){
+							blob1Enemies[k].health-=bulletDamage;
+							if(blob1Enemies[k].health<=-4){
+								points+=40;
+								x = blob1Enemies[k].x+6;
+								y = blob1Enemies[k].y+6;
+								blob2Enemies.push(new rectangleModel(28, 28, "#A6E1A1", x, y));
+								blob1Enemies.splice(k, 1);
+							}
+							playerBullets.splice(i, 1);
+						}
+					}
+					for(var k=blob2Enemies.length-1;k>=0;k--){
+						if(playerBullets[i].x < blob2Enemies[k].x + blob2Enemies[k].width &&
+						   playerBullets[i].x + playerBullets[i].width > blob2Enemies[k].x &&
+						   playerBullets[i].y < blob2Enemies[k].y + blob2Enemies[k].height &&
+						   playerBullets[i].height + playerBullets[i].y > blob2Enemies[k].y &&
+						   invulnerability==false){
+							blob2Enemies[k].health-=bulletDamage;
+							if(blob2Enemies[k].health<=-2){
+								points+=20;
+								x = blob2Enemies[k].x+4;
+								y = blob2Enemies[k].y+4;
+								blob3Enemies.push(new rectangleModel(20, 20, "#A6E1A1", x, y));
+								blob2Enemies.splice(k, 1);
+							}
+							playerBullets.splice(i, 1);
+						}
+					}
+					for(var k=blob3Enemies.length-1;k>=0;k--){
+						if(playerBullets[i].x < blob3Enemies[k].x + blob3Enemies[k].width &&
+						   playerBullets[i].x + playerBullets[i].width > blob3Enemies[k].x &&
+						   playerBullets[i].y < blob3Enemies[k].y + blob3Enemies[k].height &&
+						   playerBullets[i].height + playerBullets[i].y > blob3Enemies[k].y &&
+						   invulnerability==false){
+								blob3Enemies.splice(k, 1);
+								playerBullets.splice(i, 1);
+								points+=10;
+						}
 					}
 				}
 			}
@@ -550,6 +683,7 @@
 				this.speedY = 0;
 				this.frameNum = 0;
 				this.health = 0;
+				this.snakeCycle = 0;
 				this.update = function(){
 					ctx = gameArea.context;
 					if(this.type=="text"){
