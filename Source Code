@@ -304,30 +304,61 @@
 				playerSnakeCollision();
 				
 				//blob spawning and movement
-				if(objectInterval(90)){	
-					x = gameArea.canvas.width;
-					y = randomInt(0, 544);
-					blob1Enemies.push(new rectangleModel(40, 40, "#A6E1A1", x, y));
+				if(gameArea.frameNum>=9000){
+					if(objectInterval(420)){
+						x = gameArea.canvas.width;
+						y = randomInt(0, 544);
+						blob1Enemies.push(new rectangleModel(40, 40, "#A6E1A1", x, y));
+					}
 				}
 				for(var i=0;i<blob1Enemies.length;i++){
-					blob1Enemies[i].frameNum++;
 					blob1Enemies[i].x-=1;
 					blob1Enemies[i].update();
+					blob1Enemies[i].frameNum++;
 				}
-				for(var i=0;i<blob2Enemies.length;i++){
-					blob2Enemies[i].x-=2;
-					blob2Enemies[i].update();
-					blob2Enemies[i].frameNum++;
+				for(var i=0;i<blobTop2Enemies.length;i++){
+					blobTop2Enemies[i].frameNum++;
+					if(blobTop2Enemies[i].frameNum<11){
+						blobTop2Enemies[i].y-=5;
+						blobTop2Enemies[i].x-=1;
+					}else{
+						blobTop2Enemies[i].x-=2;
+					}
+					blobTop2Enemies[i].update();
 				}
-				for(var i=0;i<blob3Enemies.length;i++){
-					blob3Enemies[i].x-=4;
-					blob3Enemies[i].update();
-					blob3Enemies[i].frameNum++;
+				for(var i=0;i<blobBottom2Enemies.length;i++){
+					blobBottom2Enemies[i].frameNum++;
+					if(blobBottom2Enemies[i].frameNum<11){
+						blobBottom2Enemies[i].y+=5;
+						blobBottom2Enemies[i].x-=1;
+					}else{
+						blobBottom2Enemies[i].x-=2;
+					}
+					blobBottom2Enemies[i].update();
+				}
+				for(var i=0;i<blobTop3Enemies.length;i++){
+					blobTop3Enemies[i].frameNum++;
+					if(blobTop3Enemies[i].frameNum<11){
+						blobTop3Enemies[i].y-=3;
+						blobTop3Enemies[i].x-=2;
+					}else{
+						blobTop3Enemies[i].x-=4;
+					}
+					blobTop3Enemies[i].update();
+				}
+				for(var i=0;i<blobBottom3Enemies.length;i++){
+					blobBottom3Enemies[i].frameNum++;
+					if(blobBottom3Enemies[i].frameNum<11){
+						blobBottom3Enemies[i].y+=3;
+						blobBottom3Enemies[i].x-=2;
+					}else{
+						blobBottom3Enemies[i].x-=4;
+					}
+					blobBottom3Enemies[i].update();
 				}
 				blobOut();
 				blobBulletCollision();
-				//add player-blob collision
-				//fix blob splitting
+				playerBlobCollision();
 				
 				score.update();
 				life.update();
@@ -612,14 +643,24 @@
 						blob1Enemies.splice(i, 1);
 					}
 				}
-				for(var i=0;i<blob2Enemies.length;i++){
-					if(blob2Enemies[i].x+28<0){
-						blob2Enemies.splice(i, 1);
+				for(var i=0;i<blobTop2Enemies.length;i++){
+					if(blobTop2Enemies[i].x+28<0){
+						blobTop2Enemies.splice(i, 1);
 					}
 				}
-				for(var i=0;i<blob3Enemies.length;i++){
-					if(blob3Enemies[i].x+20<0){
-						blob3Enemies.splice(i, 1);
+				for(var i=0;i<blobBottom2Enemies.length;i++){
+					if(blobBottom2Enemies[i].x+28<0){
+						blobBottom2Enemies.splice(i, 1);
+					}
+				}
+				for(var i=0;i<blobTop3Enemies.length;i++){
+					if(blobTop3Enemies[i].x+20<0){
+						blobTop3Enemies.splice(i, 1);
+					}
+				}
+				for(var i=0;i<blobBottom3Enemies.length;i++){
+					if(blobBottom3Enemies[i].x+20<0){
+						blobBottom3Enemies.splice(i, 1);
 					}
 				}
 			}
@@ -644,34 +685,111 @@
 							playerBullets.splice(i, 1);
 						}
 					}
-					for(var k=blob2Enemies.length-1;k>=0;k--){
-						if(playerBullets[i].x < blob2Enemies[k].x + blob2Enemies[k].width &&
-						   playerBullets[i].x + playerBullets[i].width > blob2Enemies[k].x &&
-						   playerBullets[i].y < blob2Enemies[k].y + blob2Enemies[k].height &&
-						   playerBullets[i].height + playerBullets[i].y > blob2Enemies[k].y &&
+					for(var k=blobTop2Enemies.length-1;k>=0;k--){
+						if(playerBullets[i].x < blobTop2Enemies[k].x + blobTop2Enemies[k].width &&
+						   playerBullets[i].x + playerBullets[i].width > blobTop2Enemies[k].x &&
+						   playerBullets[i].y < blobTop2Enemies[k].y + blobTop2Enemies[k].height &&
+						   playerBullets[i].height + playerBullets[i].y > blobTop2Enemies[k].y &&
 						   invulnerability==false){
-							blob2Enemies[k].health-=bulletDamage;
-							if(blob2Enemies[k].health<=-2){
+							blobTop2Enemies[k].health-=bulletDamage;
+							if(blobTop2Enemies[k].health<=-2){
 								points+=20;
-								x = blob2Enemies[k].x+4;
-								y = blob2Enemies[k].y+4;
+								x = blobTop2Enemies[k].x+4;
+								y = blobTop2Enemies[k].y+4;
 								blobTop3Enemies.push(new rectangleModel(20, 20, "#A6E1A1", x, y));
 								blobBottom3Enemies.push(new rectangleModel(20, 20, "#A6E1A1", x, y));
-								blob2Enemies.splice(k, 1);
+								blobTop2Enemies.splice(k, 1);
 							}
 							playerBullets.splice(i, 1);
 						}
 					}
-					for(var k=blob3Enemies.length-1;k>=0;k--){
-						if(playerBullets[i].x < blob3Enemies[k].x + blob3Enemies[k].width &&
-						   playerBullets[i].x + playerBullets[i].width > blob3Enemies[k].x &&
-						   playerBullets[i].y < blob3Enemies[k].y + blob3Enemies[k].height &&
-						   playerBullets[i].height + playerBullets[i].y > blob3Enemies[k].y &&
+					for(var k=blobBottom2Enemies.length-1;k>=0;k--){
+						if(playerBullets[i].x < blobBottom2Enemies[k].x + blobBottom2Enemies[k].width &&
+						   playerBullets[i].x + playerBullets[i].width > blobBottom2Enemies[k].x &&
+						   playerBullets[i].y < blobBottom2Enemies[k].y + blobBottom2Enemies[k].height &&
+						   playerBullets[i].height + playerBullets[i].y > blobBottom2Enemies[k].y &&
 						   invulnerability==false){
-								blob3Enemies.splice(k, 1);
-								playerBullets.splice(i, 1);
-								points+=10;
+							blobBottom2Enemies[k].health-=bulletDamage;
+							if(blobBottom2Enemies[k].health<=-2){
+								points+=20;
+								x = blobBottom2Enemies[k].x+4;
+								y = blobBottom2Enemies[k].y+4;
+								blobTop3Enemies.push(new rectangleModel(20, 20, "#A6E1A1", x, y));
+								blobBottom3Enemies.push(new rectangleModel(20, 20, "#A6E1A1", x, y));
+								blobBottom2Enemies.splice(k, 1);
+							}
+							playerBullets.splice(i, 1);
 						}
+					}
+					for(var k=blobTop3Enemies.length-1;k>=0;k--){
+						if(playerBullets[i].x < blobTop3Enemies[k].x + blobTop3Enemies[k].width &&
+						   playerBullets[i].x + playerBullets[i].width > blobTop3Enemies[k].x &&
+						   playerBullets[i].y < blobTop3Enemies[k].y + blobTop3Enemies[k].height &&
+						   playerBullets[i].height + playerBullets[i].y > blobTop3Enemies[k].y &&
+						   invulnerability==false){
+							points+=10;
+							blobTop3Enemies.splice(k, 1);
+							playerBullets.splice(i, 1);
+						}
+					}
+					for(var k=blobBottom3Enemies.length-1;k>=0;k--){
+						if(playerBullets[i].x < blobBottom3Enemies[k].x + blobBottom3Enemies[k].width &&
+						   playerBullets[i].x + playerBullets[i].width > blobBottom3Enemies[k].x &&
+						   playerBullets[i].y < blobBottom3Enemies[k].y + blobBottom3Enemies[k].height &&
+						   playerBullets[i].height + playerBullets[i].y > blobBottom3Enemies[k].y &&
+						   invulnerability==false){
+							points+=10;
+							blobBottom3Enemies.splice(k, 1);
+							playerBullets.splice(i, 1);
+						}
+					}
+				}
+			}
+			
+			function playerBlobCollision(){
+				for(var i=0;i<blob1Enemies.length;i++){
+					if(player.x < blob1Enemies[i].x + blob1Enemies[i].width &&
+					   player.x + player.width > blob1Enemies[i].x &&
+					   player.y < blob1Enemies[i].y + blob1Enemies[i].height &&
+					   player.height + player.y > blob1Enemies[i].y &&
+					   invulnerability==false){
+						death();
+					}
+				}
+				for(var i=0;i<blobTop2Enemies.length;i++){
+					if(player.x < blobTop2Enemies[i].x + blobTop2Enemies[i].width &&
+					   player.x + player.width > blobTop2Enemies[i].x &&
+					   player.y < blobTop2Enemies[i].y + blobTop2Enemies[i].height &&
+					   player.height + player.y > blobTop2Enemies[i].y &&
+					   invulnerability==false){
+						death();
+					}
+				}
+				for(var i=0;i<blobBottom2Enemies.length;i++){
+					if(player.x < blobBottom2Enemies[i].x + blobBottom2Enemies[i].width &&
+					   player.x + player.width > blobBottom2Enemies[i].x &&
+					   player.y < blobBottom2Enemies[i].y + blobBottom2Enemies[i].height &&
+					   player.height + player.y > blobBottom2Enemies[i].y &&
+					   invulnerability==false){
+						death();
+					}
+				}
+				for(var i=0;i<blobTop3Enemies.length;i++){
+					if(player.x < blobTop3Enemies[i].x + blobTop3Enemies[i].width &&
+					   player.x + player.width > blobTop3Enemies[i].x &&
+					   player.y < blobTop3Enemies[i].y + blobTop3Enemies[i].height &&
+					   player.height + player.y > blobTop3Enemies[i].y &&
+					   invulnerability==false){
+						death();
+					}
+				}
+				for(var i=0;i<blobBottom3Enemies.length;i++){
+					if(player.x < blobBottom3Enemies[i].x + blobBottom3Enemies[i].width &&
+					   player.x + player.width > blobBottom3Enemies[i].x &&
+					   player.y < blobBottom3Enemies[i].y + blobBottom3Enemies[i].height &&
+					   player.height + player.y > blobBottom3Enemies[i].y &&
+					   invulnerability==false){
+						death();
 					}
 				}
 			}
