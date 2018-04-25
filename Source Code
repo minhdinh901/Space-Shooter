@@ -215,7 +215,7 @@
 					basicEnemies.push(new rectangleModel(20, 20, "#ff0000", x, y));
 				}
 				for(var i=0;i<basicEnemies.length;i++){
-					basicEnemies[i].x-=4;
+					basicEnemies[i].x-=3;
 					basicEnemies[i].update();
 					basicEnemies[i].frameNum++;
 				}
@@ -229,7 +229,7 @@
 					}
 				}
 				for(var i=0;i<basicBullets.length;i++){
-					basicBullets[i].x-=3;
+					basicBullets[i].x-=4;
 					basicBullets[i].update();
 				}
 				basicOut();
