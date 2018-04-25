@@ -51,13 +51,7 @@
 			
 			//pick-up variables
 			var pickUps = [];
-			var hasLazer = false;
-			var hasMachineGun = false;
-			var hasSplit = false;
-			var hasShotgun = false;
-			var hasNova = false;
-			var hasCharge = false;
-			var hasMelee = false;
+			var gunType = 0;
 			
 			function runGame(){
 				gameArea.start();
@@ -151,20 +145,20 @@
 				if(gameArea.keys && gameArea.keys[32] && invulnerability==false){
 					isShooting = true;
 					shotFrame++;
-					if(hasLazer==true){
+					if(gunType==1){
 						if(isShooting && (shotFrame==1 || shotFrame%6==0)){
 							x = player.x+player.width;
 							y = player.y+8;
 							playerBullets.push(new rectangleModel(36, 4, "#93FFF7", x, y));
 						}
-					}else if(hasMachineGun==true){
+					}else if(gunType==2){
 						if(isShooting && (shotFrame==1 || shotFrame%4==0)){
 							x = player.x+player.width;
 							randomY = randomInt(0, 14);
 							y = player.y+randomY;
 							playerBullets.push(new rectangleModel(12, 6, "#A8A8A8", x, y));
 						}
-					}else if(hasSplit==true){
+					}else if(gunType==3){
 						if(isShooting && (shotFrame==1 || shotFrame%20==0)){
 							x = player.x+player.width;
 							y = player.y-5;
@@ -184,9 +178,9 @@
 			
 				//bullet movement
 				for(var i=0;i<playerBullets.length;i++){
-					if(hasLazer==true){
+					if(gunType==1){
 						playerBullets[i].x+=6;
-					}else if(hasMachineGun==true){
+					}else if(gunType==2){
 						if(playerBullets[i].hasSpread==false){
 							sign = randomInt(0, 1);
 							if(sign==0){
@@ -198,7 +192,7 @@
 						}
 						playerBullets[i].x+=5;
 						playerBullets[i].y+=playerBullets[i].mgSpread;
-					}else if(hasSplit==true){
+					}else if(gunType==3){
 						playerBullets[i].x+=5;
 						//FIX THIS
 					}else{
@@ -901,31 +895,13 @@
 				for(var i=0;i<pickUps.length;i++){
 					if(rectCircCollision(player, pickUps[i])){
 						if(pickUps[i].type=="lazer"){
-							hasLazer = true;
-							hasMachineGun = false;
-							hasSplit = false;
-							hasShotgun = false;
-							hasNova = false;
-							hasCharge = false;
-							hasMelee = false;
+							gunType = 1;
 						}
 						if(pickUps[i].type=="machine gun"){
-							hasLazer = false;
-							hasMachineGun = true;
-							hasSplit = false;
-							hasShotgun = false;
-							hasNova = false;
-							hasCharge = false;
-							hasMelee = false;
+							gunType = 2;
 						}
 						if(pickUps[i].type=="split"){
-							hasLazer = false;
-							hasMachineGun = false;
-							hasSplit = true;
-							hasShotgun = false;
-							hasNova = false;
-							hasCharge = false;
-							hasMelee = false;
+							gunType = 3;
 						}
 						pickUps.splice(i, 1);
 					}
