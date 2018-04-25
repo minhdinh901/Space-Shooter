@@ -13,6 +13,10 @@
 	<body onload="runGame()">
 		<script>
 			//MAKE NEW ENEMIES AND PICK-UPS
+			//MAKE ENEMY HEALTH INCREASE OVER TIME
+			//MAKE ENEMY AND PLAYER DEATH ANIMATIONS
+			//MAKE MORE ANIMATIONS IN GENERAL
+			//player variables
 			var player;
 			var points = 0;
 			var score;
@@ -23,6 +27,8 @@
 			var playerBullets = [];
 			var bulletDamage = 1;
 			var shotFrame = 0;
+			
+			//enemy variables
 			var basicEnemies = [];
 			var basicBullets = [];
 			var chargerEnemies = [];
@@ -38,6 +44,10 @@
 			var blobBottom2Enemies = [];
 			var blobTop3Enemies = [];
 			var blobBottom3Enemies = [];
+			
+			//pick-up variables
+			var pickUps = [];
+			var hasLazer = false;
 			
 			function runGame(){
 				gameArea.start();
@@ -109,17 +119,6 @@
 				player.newPos();
 				player.update();
 				
-				//player shooting
-				if(gameArea.keys && gameArea.keys[32] && invulnerability==false){
-					isShooting = true;
-					shotFrame++;
-					if(isShooting && (shotFrame==1 || shotFrame%15==0)){
-						x = player.x+player.width;
-						y = player.y+6;
-						playerBullets.push(new rectangleModel(16, 8, "#009900", x, y));
-					}
-				}
-				
 				//player respawn
 				if(invulnerability==true){
 					if(player.frameNum>=0 && player.frameNum<60){
@@ -137,10 +136,33 @@
 						invulnerability = false;
 					}
 				}
+				
+				//player shooting
+				if(gameArea.keys && gameArea.keys[32] && invulnerability==false){
+					isShooting = true;
+					shotFrame++;
+					if(hasLazer==true){
+						if(isShooting && (shotFrame==1 || shotFrame%6==0)){
+							x = player.x+player.width;
+							y = player.y+8;
+							playerBullets.push(new rectangleModel(36, 4, "#93FFF7", x, y));
+						}
+					}else{
+						if(isShooting && (shotFrame==1 || shotFrame%15==0)){
+							x = player.x+player.width;
+							y = player.y+6;
+							playerBullets.push(new rectangleModel(16, 8, "#009900", x, y));
+						}
+					}
+				}
 			
 				//bullet movement
 				for(var i=0;i<playerBullets.length;i++){
-					playerBullets[i].x+=5;
+					if(hasLazer==true){
+						playerBullets[i].x+=6;
+					}else{
+						playerBullets[i].x+=5;
+					}
 					playerBullets[i].update();
 				}
 				bulletOut();
@@ -305,7 +327,7 @@
 				
 				//blob spawning and movement
 				if(gameArea.frameNum>=9000){
-					if(objectInterval(420)){
+					if(objectInterval(540)){
 						x = gameArea.canvas.width;
 						y = randomInt(0, 544);
 						blob1Enemies.push(new rectangleModel(40, 40, "#A6E1A1", x, y));
@@ -360,6 +382,32 @@
 				blobBulletCollision();
 				playerBlobCollision();
 				
+				//pick-up spawning and movement
+				if(gameArea.frameNum%3600==0){
+					/*weaponSpawn = randomInt(1,7);
+					if(weaponSpawn==1){
+					
+					}*/
+					//this just has lazer pickup for now
+					x = gameArea.canvas.width+9;
+					y = randomInt(9, 557);
+					pickUps.push(new circleModel(x, y, 9, 0, 2*Math.PI, "#93FFF7", "lazer"));
+				}
+				for(var i=0;i<pickUps.length;i++){
+					pickUps[i].x-=2;
+					pickUps[i].frameNum++;
+					if(pickUps[i].type=="lazer"){
+						if(pickUps[i].frameNum%20==0){
+							pickUps[i].color = "#DEFF0F";
+						}else{
+							pickUps[i].color = "#93FFF7";
+						}
+					}
+					pickUps[i].update();
+				}
+				getPickUp();
+				pickUpOut();
+				
 				score.update();
 				life.update();
 			}
@@ -385,6 +433,7 @@
 				}
 			}
 			
+			//enemy functions
 			function basicOut(){
 				for(var i=0;i<basicEnemies.length;i++){
 					if(basicEnemies[i].x+20<0){
@@ -794,6 +843,27 @@
 				}
 			}
 			
+			//pick-up functions
+			function getPickUp(){
+				for(var i=0;i<pickUps.length;i++){
+					if(rectCircCollision(player, pickUps[i])){
+						if(pickUps[i].type=="lazer"){
+							hasLazer = true;
+						}
+						pickUps.splice(i, 1);
+					}
+				}
+			}
+			
+			function pickUpOut(){
+				for(var i=0;i<pickUps.length;i++){
+					if(pickUps[i].x+9<0){
+						pickUps.splice(i, 1);
+					}
+				}
+			}
+			
+			//base functions
 			function rectangleModel(width, height, color, x, y, type){
 				this.type = type;
 				this.width = width;
@@ -821,6 +891,47 @@
 					this.x += this.speedX;
 					this.y += this.speedY;
 				}
+			}
+			
+			function circleModel(x, y, r, startAngle, endAngle, color, type){
+				this.x = x;
+				this.y = y;
+				this.r = r;
+				this.startAngle = startAngle;
+				this.endAngle = endAngle;
+				this.color = color;
+				this.type = type;
+				this.frameNum = 0;
+				this.update = function(){
+					ctx = gameArea.context;
+					ctx.beginPath();
+					ctx.arc(this.x, this.y, this.r, this.startAngle, this.endAngle);
+					ctx.fillStyle = this.color;
+					ctx.fill();
+					ctx.lineWidth = 1;
+					ctx.strokeStyle = this.color;
+					ctx.stroke();
+				}
+			}
+			
+			function rectCircCollision(rect, circle){
+				distX = Math.abs(circle.x-(rect.x+rect.width/2));
+				distY = Math.abs(circle.y-(rect.y+rect.width/2));
+				if(distX>((rect.width/2)+circle.r)){
+					return false; 
+				}
+				if(distY>((rect.height/2)+circle.r)){
+					return false;
+				}
+				if(distX<=((rect.width/2)+circle.r)){ 
+					return true; 
+				} 
+				if(distY<=((rect.height/2)+circle.r)) { 
+					return true; 
+				}
+				diagX=distX-rect.width/2;
+				diagY=distY-rect.height/2;
+				return (diagX*diagX+diagY*diagY<=(circle.r*circle.r));
 			}
 			
 			function objectInterval(a){
