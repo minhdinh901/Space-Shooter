@@ -419,7 +419,7 @@
 			function death(){
 				player.health--;
 				lives--;
-				if(player.health<=-100){
+				if(player.health<=-3){
 					player.x=-1000000;
 					player.y=-1000000;
 				}else{
