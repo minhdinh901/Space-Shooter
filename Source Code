@@ -209,7 +209,7 @@
 				bulletOut();
 				
 				//basic spawning and movement
-				if(gameArea.frameNum==1 || objectInterval(90)){	
+				if(gameArea.frameNum==1 || objectInterval(60)){	
 					x = gameArea.canvas.width;
 					y = randomInt(0, 556);
 					basicEnemies.push(new rectangleModel(20, 20, "#ff0000", x, y));
@@ -305,7 +305,7 @@
 				
 				//bouncer spawning and movement
 				if(gameArea.frameNum>=5400){
-					if(objectInterval(600)){
+					if(objectInterval(300)){
 						x = randomInt(0, 994);
 						y = gameArea.canvas.height;
 						bouncerEnemies.push(new rectangleModel(30, 50, "#CFD37B", x, y));
@@ -326,7 +326,7 @@
 				if(gameArea.frameNum>=7200){
 					x = gameArea.canvas.width;
 					spawnpoint = randomInt(0, 506);
-					if(objectInterval(900)){
+					if(objectInterval(360)){
 						snakeY = spawnpoint;
 						snakeEnemies.push(new rectangleModel(20, 20, "#D10F0F", x, snakeY));
 						snakeDelay = gameArea.frameNum;
@@ -368,7 +368,7 @@
 				
 				//blob spawning and movement
 				if(gameArea.frameNum>=9000){
-					if(objectInterval(540)){
+					if(objectInterval(240)){
 						x = gameArea.canvas.width;
 						y = randomInt(0, 544);
 						blob1Enemies.push(new rectangleModel(40, 40, "#A6E1A1", x, y));
