@@ -215,14 +215,14 @@
 					basicEnemies.push(new rectangleModel(20, 20, "#ff0000", x, y));
 				}
 				for(var i=0;i<basicEnemies.length;i++){
-					basicEnemies[i].x-=2;
+					basicEnemies[i].x-=4;
 					basicEnemies[i].update();
 					basicEnemies[i].frameNum++;
 				}
 				
 				//basic shooting
 				for(var i=0;i<basicEnemies.length;i++){
-					if(basicEnemies[i].frameNum%120==0){
+					if(basicEnemies[i].frameNum%60==0){
 						x = basicEnemies[i].x-10;
 						y = basicEnemies[i].y+6;
 						basicBullets.push(new rectangleModel(16, 8, "#ff00ff", x, y));
@@ -254,7 +254,7 @@
 						chargerEnemies[i].x++;
 						chargerEnemies[i].update();
 					}else{
-						chargerEnemies[i].x-=40;
+						chargerEnemies[i].x-=50;
 						chargerEnemies[i].update();
 					}
 					chargerEnemies[i].frameNum++;
@@ -272,7 +272,7 @@
 					}
 				}
 				for(var i=0;i<lateralEnemies.length;i++){
-					lateralEnemies[i].x-=3;
+					lateralEnemies[i].x-=4;
 					lateralEnemies[i].update();
 					lateralEnemies[i].frameNum++;
 				}
@@ -288,11 +288,11 @@
 					}
 				}
 				for(var i=0;i<lateralTopBullets.length;i++){
-					lateralTopBullets[i].y-=3;
+					lateralTopBullets[i].y-=4;
 					lateralTopBullets[i].update();
 				}
 				for(var i=0;i<lateralBottomBullets.length;i++){
-					lateralBottomBullets[i].y+=3;
+					lateralBottomBullets[i].y+=4;
 					lateralBottomBullets[i].update();
 				}
 				lateralOut();
@@ -375,7 +375,7 @@
 					}
 				}
 				for(var i=0;i<blob1Enemies.length;i++){
-					blob1Enemies[i].x-=1;
+					blob1Enemies[i].x-=2;
 					blob1Enemies[i].update();
 					blob1Enemies[i].frameNum++;
 				}
@@ -383,9 +383,9 @@
 					blobTop2Enemies[i].frameNum++;
 					if(blobTop2Enemies[i].frameNum<11){
 						blobTop2Enemies[i].y-=5;
-						blobTop2Enemies[i].x-=1;
-					}else{
 						blobTop2Enemies[i].x-=2;
+					}else{
+						blobTop2Enemies[i].x-=4;
 					}
 					blobTop2Enemies[i].update();
 				}
@@ -393,9 +393,9 @@
 					blobBottom2Enemies[i].frameNum++;
 					if(blobBottom2Enemies[i].frameNum<11){
 						blobBottom2Enemies[i].y+=5;
-						blobBottom2Enemies[i].x-=1;
-					}else{
 						blobBottom2Enemies[i].x-=2;
+					}else{
+						blobBottom2Enemies[i].x-=4;
 					}
 					blobBottom2Enemies[i].update();
 				}
@@ -403,9 +403,9 @@
 					blobTop3Enemies[i].frameNum++;
 					if(blobTop3Enemies[i].frameNum<11){
 						blobTop3Enemies[i].y-=3;
-						blobTop3Enemies[i].x-=2;
-					}else{
 						blobTop3Enemies[i].x-=4;
+					}else{
+						blobTop3Enemies[i].x-=8;
 					}
 					blobTop3Enemies[i].update();
 				}
@@ -413,9 +413,9 @@
 					blobBottom3Enemies[i].frameNum++;
 					if(blobBottom3Enemies[i].frameNum<11){
 						blobBottom3Enemies[i].y+=3;
-						blobBottom3Enemies[i].x-=2;
-					}else{
 						blobBottom3Enemies[i].x-=4;
+					}else{
+						blobBottom3Enemies[i].x-=8;
 					}
 					blobBottom3Enemies[i].update();
 				}
