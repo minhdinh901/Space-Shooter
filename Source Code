@@ -896,12 +896,15 @@
 					if(rectCircCollision(player, pickUps[i])){
 						if(pickUps[i].type=="lazer"){
 							gunType = 1;
+							bulletDamage = 0.4;
 						}
 						if(pickUps[i].type=="machine gun"){
 							gunType = 2;
+							bulletDamage = 0.2;
 						}
 						if(pickUps[i].type=="split"){
 							gunType = 3;
+							bulletDamage = 1.3;
 						}
 						pickUps.splice(i, 1);
 					}
