@@ -16,7 +16,6 @@
 	</head>
 	<body onload="runGame()">
 		<script>
-			//
 			//MAKE NEW ENEMIES AND PICK-UPS
 			//MAKE ENEMY HEALTH INCREASE OVER TIME
 			//MAKE ENEMY AND PLAYER DEATH ANIMATIONS
