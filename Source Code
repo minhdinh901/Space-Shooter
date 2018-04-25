@@ -51,6 +51,7 @@
 			//pick-up variables
 			var pickUps = [];
 			var hasLazer = false;
+			var hasMachineGun = false;
 			
 			function runGame(){
 				gameArea.start();
@@ -387,19 +388,19 @@
 				
 				//pick-up spawning and movement
 				if(gameArea.frameNum%3600==0){
-					/*weaponSpawn = randomInt(1,7);
-					if(weaponSpawn==1){
-					
-					}*/
-					//this just has lazer pickup for now
+					weaponSpawn = randomInt(1,2);
 					x = gameArea.canvas.width+9;
 					y = randomInt(9, 557);
-					pickUps.push(new circleModel(x, y, 9, 0, 2*Math.PI, "#93FFF7", "lazer"));
+					if(weaponSpawn==1){
+						pickUps.push(new circleModel(x, y, 9, 0, 2*Math.PI, "#93FFF7", "lazer"));
+					}else if(weaponSpawn==2){
+						pickUps.push(new circleModel(x, y, 9, 0, 2*Math.PI, "#A8A8A8", "machine gun"));
+					}
 				}
 				for(var i=0;i<pickUps.length;i++){
 					pickUps[i].x-=2;
 					pickUps[i].frameNum++;
-					if(pickUps[i].type=="lazer"){
+					if(pickUps[i].type!=null){
 						if(pickUps[i].frameNum%20==0){
 							pickUps[i].color = "#DEFF0F";
 						}else{
@@ -852,6 +853,11 @@
 					if(rectCircCollision(player, pickUps[i])){
 						if(pickUps[i].type=="lazer"){
 							hasLazer = true;
+							hasMachineGun = false;
+						}
+						if(pickUps[i].type=="machine gun"){
+							hasLazer = false;
+							hasMachineGun = true;
 						}
 						pickUps.splice(i, 1);
 					}
