@@ -387,7 +387,7 @@
 				playerBlobCollision();
 				
 				//pick-up spawning and movement
-				if(gameArea.frameNum%10==0){
+				if(gameArea.frameNum%3600==0){
 					weaponSpawn = randomInt(1,2);
 					x = gameArea.canvas.width+9;
 					y = randomInt(9, 557);
