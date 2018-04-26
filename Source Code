@@ -99,25 +99,25 @@
 				player.speedX = 0;
 				player.speedY = 0;
 				if(gameArea.keys && (gameArea.keys[37] || gameArea.keys[65])){
-					player.speedX-=3;
+					player.speedX-=3.5;
 					if(player.x<=1){
 						player.speedX=0;
 					}
 				}
 				if(gameArea.keys && (gameArea.keys[39] || gameArea.keys[68])){
-					player.speedX+=3;
+					player.speedX+=3.5;
 					if(player.x>=1003){
 						player.speedX=0;
 					}
 				}
 				if(gameArea.keys && (gameArea.keys[38] || gameArea.keys[87])){
-					player.speedY-=3;	
+					player.speedY-=3.5;	
 					if(player.y<=2){
 						player.speedY=0;
 					}
 				}
 				if(gameArea.keys && (gameArea.keys[40] || gameArea.keys[83])){
-					player.speedY+=3;
+					player.speedY+=3.5;
 					if(player.y>=554){
 						player.speedY=0;
 					}
@@ -891,7 +891,7 @@
 						if(rectRectCollision(playerBullets[i], blobTop3Enemies[k])&& invulnerability==false){
 							blobTop3Enemies[k].health-=bulletDamage;
 							if(blobTop3Enemies[k].health<=-1){
-								blobTop3.splice(k, 1);
+								blobTop3Enemies.splice(k, 1);
 								points+=10;
 							}
 							playerBullets.splice(i, 1);
@@ -901,7 +901,7 @@
 						if(rectRectCollision(playerBullets[i], blobBottom3Enemies[k])&& invulnerability==false){
 							blobBottom3Enemies[k].health-=bulletDamage;
 							if(blobBottom3Enemies[k].health<=-1){
-								blobBottom3.splice(k, 1);
+								blobBottom3Enemies.splice(k, 1);
 								points+=10;
 							}
 							playerBullets.splice(i, 1);
@@ -948,11 +948,11 @@
 						}
 						if(pickUps[i].type=="machine gun"){
 							gunType = 2;
-							bulletDamage = 0.75;
+							bulletDamage = 0.9;
 						}
 						if(pickUps[i].type=="split"){
 							gunType = 3;
-							bulletDamage = 0.75;
+							bulletDamage = 0.6;
 						}
 						if(pickUps[i].type=="shotgun"){
 							gunType = 4;
