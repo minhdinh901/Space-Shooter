@@ -701,6 +701,7 @@
 				playerKamikazeExplosionCollision();
 				
 				//rocket spawning and movement
+				/*
 				if(gameArea.frameNum>=0){
 					if(frameInterval(60)){
 						x = gameArea.canvas.width;
@@ -743,7 +744,6 @@
 					rocketExplosion[i].update();
 				}
 				
-				/*
 				basicOut();
 				basicBulletOut();
 				basicBulletCollision();
