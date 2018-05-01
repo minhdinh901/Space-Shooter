@@ -1,9 +1,10 @@
 
+
 <!DOCTYPE html>
 <html>
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-		<title>Some Game</title>
+		<title>Space Shooter</title>
 		<style>
 			canvas {
 				padding: 0;
@@ -16,14 +17,8 @@
 	</head>
 	<body onload="runGame()">
 		<script>
-			//MAKE NEW ENEMIES AND PICK-UPS
-			//MAKE ENEMY HEALTH INCREASE OVER TIME
-			//MAKE ENEMY AND PLAYER DEATH ANIMATIONS
-			//MAKE MORE ANIMATIONS IN GENERAL
 			//player variables
 			var player;
-			var points = 0;
-			var score;
 			var life;
 			var lives = 3;
 			var invulnerability = false;
@@ -48,12 +43,29 @@
 			var blobBottom2Enemies = [];
 			var blobTop3Enemies = [];
 			var blobBottom3Enemies = [];
+			var kamikazeEnemies = [];
+			var kamikazeExplosion = [];
+			var rocketEnemies = [];
+			var rocketBullets = [];
+			var rocketExplosion = [];
 			
 			//pick-up variables
 			var pickUps = [];
 			var gunType = 0;
 			var novaNum = 0;
 			var novaDelay;
+			var beamStage = [];
+			var beamDelay;
+			var beamCharge;
+			var beamFull = false;
+			var shootBeam = false;
+			var shootBeamDelay;
+			var explodeDelay;
+			
+			//miscellaneous variables
+			var points = 0;
+			var score;
+			var isPaused = false;
 			
 			function runGame(){
 				gameArea.start();
@@ -74,17 +86,36 @@
 					window.addEventListener("keydown", function(e){
 						gameArea.keys = (gameArea.keys || []);
 						gameArea.keys[e.keyCode] = true;
+						if(e.keyCode==80){
+							pauseCheck();
+						}
 					})
 					window.addEventListener("keyup", function(e){
 						gameArea.keys[e.keyCode] = false;
 						if(e.keyCode==32){
 							isShooting = false;
 							shotFrame = 0;
+							beamStage.splice(0);
+							if(beamFull==true){
+								shootBeam = true;
+								beamFull = false;
+							}
 						}
 					})
 				},
 				clear : function(){
 					this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+				}
+			}
+			
+			//pause the game
+			function pauseCheck(){
+				if(!isPaused){
+					clearInterval(gameArea.interval);
+					isPaused = true;
+				}else{
+					gameArea.interval = setInterval(frameRefresh, 1000/60);
+					isPaused = false;
 				}
 			}
 			
@@ -99,25 +130,25 @@
 				player.speedX = 0;
 				player.speedY = 0;
 				if(gameArea.keys && (gameArea.keys[37] || gameArea.keys[65])){
-					player.speedX-=3.5;
+					player.speedX-=4;
 					if(player.x<=1){
 						player.speedX=0;
 					}
 				}
 				if(gameArea.keys && (gameArea.keys[39] || gameArea.keys[68])){
-					player.speedX+=3.5;
+					player.speedX+=4;
 					if(player.x>=1003){
 						player.speedX=0;
 					}
 				}
 				if(gameArea.keys && (gameArea.keys[38] || gameArea.keys[87])){
-					player.speedY-=3.5;	
+					player.speedY-=4;	
 					if(player.y<=2){
 						player.speedY=0;
 					}
 				}
 				if(gameArea.keys && (gameArea.keys[40] || gameArea.keys[83])){
-					player.speedY+=3.5;
+					player.speedY+=4;
 					if(player.y>=554){
 						player.speedY=0;
 					}
@@ -151,8 +182,9 @@
 						if(isShooting && (shotFrame==1 || shotFrame%6==0)){
 							x = player.x+player.width;
 							y = player.y+8;
-							playerBullets.push(new rectangleModel(36, 4, "#93FFF7", x, y));
+							playerBullets.push(new rectangleModel(42, 4, "#93FFF7", x, y));
 						}
+						shootBeam = false;
 					}else if(gunType==2){
 						if(isShooting && (shotFrame==1 || shotFrame%4==0)){
 							x = player.x+player.width;
@@ -160,6 +192,7 @@
 							y = player.y+randomY;
 							playerBullets.push(new rectangleModel(12, 6, "#A8A8A8", x, y));
 						}
+						shootBeam = false;
 					}else if(gunType==3){
 						if(isShooting && (shotFrame==1 || shotFrame%20==0)){
 							x = player.x+player.width;
@@ -172,6 +205,7 @@
 								y+=8;
 							}
 						}
+						shootBeam = false;
 					}else if(gunType==4){
 						if(isShooting && (shotFrame==1 || shotFrame%20==0)){
 							x = player.x+player.width;
@@ -180,54 +214,70 @@
 								playerBullets.push(new rectangleModel(16, 2, "#CDCA28", x, y));
 							}
 						}
+						shootBeam = false;
 					}else if(gunType==5){
 						if(isShooting && (shotFrame==1 || shotFrame%32==0)){
 							novaNum = 0;
 						}
 						if(novaNum<8){
 							if(novaNum==0){
-								playerBullets.push(new rectangleModel(14, 14, "#531DA7", player.x+player.width, player.y+3));
+								playerBullets.push(new rectangleModel(14, 14, "#9174BF", player.x+player.width, player.y+3));
 								playerBullets[playerBullets.length-1].bulletTag = 6;
 								novaDelay = gameArea.frameNum;
 								novaNum++;
 							}
 							if(gameArea.frameNum==novaDelay+4){
 								if(novaNum==1){
-									playerBullets.push(new rectangleModel(14, 14, "#531DA7", player.x+player.width, player.y-14));
+									playerBullets.push(new rectangleModel(14, 14, "#9174BF", player.x+player.width, player.y-14));
 									playerBullets[playerBullets.length-1].bulletTag = 7;
 									novaDelay = gameArea.frameNum;
 									novaNum++;
 								}else if(novaNum==2){
-									playerBullets.push(new rectangleModel(14, 14, "#531DA7", player.x+3, player.y-14));
+									playerBullets.push(new rectangleModel(14, 14, "#9174BF", player.x+3, player.y-14));
 									playerBullets[playerBullets.length-1].bulletTag = 8;
 									novaDelay = gameArea.frameNum;
 									novaNum++;
 								}else if(novaNum==3){
-									playerBullets.push(new rectangleModel(14, 14, "#531DA7", player.x-14, player.y-14));
+									playerBullets.push(new rectangleModel(14, 14, "#9174BF", player.x-14, player.y-14));
 									playerBullets[playerBullets.length-1].bulletTag = 9;
 									novaDelay = gameArea.frameNum;
 									novaNum++;
 								}else if(novaNum==4){
-									playerBullets.push(new rectangleModel(14, 14, "#531DA7", player.x-14, player.y+3));
+									playerBullets.push(new rectangleModel(14, 14, "#9174BF", player.x-14, player.y+3));
 									playerBullets[playerBullets.length-1].bulletTag = 10;
 									novaDelay = gameArea.frameNum;
 									novaNum++;
 								}else if(novaNum==5){
-									playerBullets.push(new rectangleModel(14, 14, "#531DA7", player.x-14, player.y+player.height));
+									playerBullets.push(new rectangleModel(14, 14, "#9174BF", player.x-14, player.y+player.height));
 									playerBullets[playerBullets.length-1].bulletTag = 11;
 									novaDelay = gameArea.frameNum;
 									novaNum++;
 								}else if(novaNum==6){
-									playerBullets.push(new rectangleModel(14, 14, "#531DA7", player.x+3, player.y+player.height));
+									playerBullets.push(new rectangleModel(14, 14, "#9174BF", player.x+3, player.y+player.height));
 									playerBullets[playerBullets.length-1].bulletTag = 12;
 									novaDelay = gameArea.frameNum;
 									novaNum++;
 								}else if(novaNum==7){
-									playerBullets.push(new rectangleModel(14, 14, "#531DA7", player.x+player.width, player.y+player.height));
+									playerBullets.push(new rectangleModel(14, 14, "#9174BF", player.x+player.width, player.y+player.height));
 									playerBullets[playerBullets.length-1].bulletTag = 13;
 									novaNum++;
 								}
 							}
+						}
+						shootBeam = false;
+					}else if(gunType==6){
+						if(isShooting && (shotFrame==1 || shotFrame%12==0)){
+							x = (player.x+player.width)-38;
+							y = player.y+(player.width/2);
+							playerBullets.push(new circleModel(x, y, 54, (7*Math.PI)/4, Math.PI/4, "#4C80EE", "melee"));
+						}
+						shootBeam = false;
+					}else if(gunType==7){
+						if(isShooting && shotFrame==1){
+							x = player.x+player.width;
+							y = player.y+9;
+							beamStage.push(new rectangleModel(1024, 2, "#10FFA8", x, y));
+							beamStage[beamStage.length-1].bulletTag = 0;
 						}
 					}else{
 						if(isShooting && (shotFrame==1 || shotFrame%15==0)){
@@ -237,11 +287,21 @@
 						}
 					}
 				}
+				
+				//special shooting for beam
+				if(shootBeam==true){
+					x = player.x+player.width;
+					y = player.y-6;
+					playerBullets.push(new rectangleModel(1024, 32, "#00E591", x, y));
+					playerBullets[playerBullets.length-1].bulletTag = 14;
+					shootBeamDelay = gameArea.frameNum;
+					shootBeam = false;
+				}
 			
 				//bullet movement
 				for(var i=0;i<playerBullets.length;i++){
 					if(gunType==1){
-						playerBullets[i].x+=6;
+						playerBullets[i].x+=7;
 					}else if(gunType==2){
 						if(playerBullets[i].hasSpread==false){
 							sign = randomInt(0, 1);
@@ -252,10 +312,10 @@
 							}
 							playerBullets[i].hasSpread = true;
 						}
-						playerBullets[i].x+=5;
+						playerBullets[i].x+=6;
 						playerBullets[i].y+=playerBullets[i].spread;
 					}else if(gunType==3){
-						playerBullets[i].x+=6;
+						playerBullets[i].x+=7;
 						if(playerBullets[i].bulletTag==1){
 							playerBullets[i].y-=2;
 						}
@@ -281,36 +341,55 @@
 						playerBullets[i].x+=30;
 						playerBullets[i].y+=playerBullets[i].spread;
 					}else if(gunType==5){
-						if(playerBullets[i].frameNum%120==0){
-							if(playerBullets[i].bulletTag==6){
-								playerBullets[i].x+=4;
-							}else if(playerBullets[i].bulletTag==7){
-								playerBullets[i].x+=4;
-								playerBullets[i].y-=4;
-							}else if(playerBullets[i].bulletTag==8){
-								playerBullets[i].y-=4;
-							}else if(playerBullets[i].bulletTag==9){
-								playerBullets[i].x-=4;
-								playerBullets[i].y-=4;
-							}else if(playerBullets[i].bulletTag==10){
-								playerBullets[i].x-=4;
-							}else if(playerBullets[i].bulletTag==11){
-								playerBullets[i].x-=4;
-								playerBullets[i].y+=4;
-							}else if(playerBullets[i].bulletTag==12){
-								playerBullets[i].y+=4;
-							}else if(playerBullets[i].bulletTag==13){
-								playerBullets[i].x+=4;
-								playerBullets[i].y+=4;
-							}else if(playerBullets[i].bulletTag!=6 && 
-									 playerBullets[i].bulletTag!=7 && 
-									 playerBullets[i].bulletTag!=8 && 
-									 playerBullets[i].bulletTag!=9 && 
-									 playerBullets[i].bulletTag!=10 && 
-									 playerBullets[i].bulletTag!=11 && 
-									 playerBullets[i].bulletTag!=12){
-								playerBullets[i].x+=6;
+						if(playerBullets[i].bulletTag==6){
+							playerBullets[i].x+=5;
+						}else if(playerBullets[i].bulletTag==7){
+							playerBullets[i].x+=5;
+							playerBullets[i].y-=5;
+						}else if(playerBullets[i].bulletTag==8){
+							playerBullets[i].y-=5;
+						}else if(playerBullets[i].bulletTag==9){
+							playerBullets[i].x-=5;
+							playerBullets[i].y-=5;
+						}else if(playerBullets[i].bulletTag==10){
+							playerBullets[i].x-=5;
+						}else if(playerBullets[i].bulletTag==11){
+							playerBullets[i].x-=5;
+							playerBullets[i].y+=5;
+						}else if(playerBullets[i].bulletTag==12){
+							playerBullets[i].y+=5;
+						}else if(playerBullets[i].bulletTag==13){
+							playerBullets[i].x+=5;
+							playerBullets[i].y+=5;
+						}else if(playerBullets[i].bulletTag!=6 && 
+								 playerBullets[i].bulletTag!=7 && 
+								 playerBullets[i].bulletTag!=8 && 
+								 playerBullets[i].bulletTag!=9 && 
+								 playerBullets[i].bulletTag!=10 && 
+								 playerBullets[i].bulletTag!=11 && 
+								 playerBullets[i].bulletTag!=12){
+							playerBullets[i].x+=6;
+						}
+					}else if(gunType==6){
+						playerBullets[i].frameNum++;
+						if(playerBullets[i].frameNum==15){
+							playerBullets.splice(i, 1);
+						}
+						playerBullets[i].x+=20;
+					}else if(gunType==7){
+						if(playerBullets[i].bulletTag==14){
+							playerBullets[i].x = player.x+player.width;
+							playerBullets[i].y = player.y-6;
+							if(gameArea.frameNum%10==0){
+								playerBullets[i].color = "#DEFF0F";
+							}else{
+								playerBullets[i].color = "#00E591";
 							}
+							if(gameArea.frameNum==shootBeamDelay+60){
+								playerBullets.splice(i, 1);
+							}
+						}else{
+							playerBullets[i].x+=6;
 						}
 					}else{
 						playerBullets[i].x+=5;
@@ -318,6 +397,34 @@
 					playerBullets[i].update();
 				}
 				bulletOut();
+				
+				//special movement for beam charge up
+				for(var i=0;i<beamStage.length;i++){
+					if(beamStage[i].bulletTag==0){
+						beamDelay = gameArea.frameNum;
+						beamCharge = 9;
+						beamStage[i].bulletTag++;
+					}
+					if(gameArea.frameNum==beamDelay+3){
+						beamStage[i].bulletTag++;
+						beamCharge--;
+						beamStage[i].height+=2;
+						beamDelay = gameArea.frameNum;
+					}
+					if(beamStage[i].bulletTag>=16){
+						if(shotFrame%20==0){
+							beamStage[i].color = "#DEFF0F";
+						}else{
+							beamStage[i].color = "#10FFA8";
+						}
+						beamStage[i].height = 32;
+						beamCharge = -6;
+						beamFull = true;
+					}
+					beamStage[i].y = player.y+beamCharge;
+					beamStage[i].x = player.x+player.width;
+					beamStage[i].update();
+				}
 				
 				//basic spawning and movement
 				if(gameArea.frameNum==1 || frameInterval(60)){	
@@ -333,7 +440,7 @@
 				
 				//basic shooting
 				for(var i=0;i<basicEnemies.length;i++){
-					if(basicEnemies[i].frameNum%75==0){
+					if(basicEnemies[i].frameNum%90==0){
 						x = basicEnemies[i].x-10;
 						y = basicEnemies[i].y+6;
 						basicBullets.push(new rectangleModel(16, 8, "#ff00ff", x, y));
@@ -534,9 +641,119 @@
 				blobBulletCollision();
 				playerBlobCollision();
 				
+				//kamikaze spawning and movement
+				if(gameArea.frameNum>=10800){
+					if(frameInterval(900)){
+						x = gameArea.canvas.width;
+						y = randomInt(0, 556);
+						kamikazeEnemies.push(new rectangleModel(18, 18, "#FFBAAD", x, y));
+					}
+				}
+				for(var i=0;i<kamikazeEnemies.length;i++){
+					kamikazeEnemies[i].frameNum++;
+					distX = ((player.x+(player.width/2))-(kamikazeEnemies[i].x+(kamikazeEnemies[i].width/2)))/75;
+					distY = ((player.y+(player.height/2))-(kamikazeEnemies[i].y+(kamikazeEnemies[i].height/2)))/75;
+					kamikazeEnemies[i].x+=distX;
+					kamikazeEnemies[i].y+=distY;
+					if(kamikazeEnemies[i].frameNum>=60 && kamikazeEnemies[i].frameNum<120){
+						kamikazeEnemies[i].color = "#FF9480";
+					}else if(kamikazeEnemies[i].frameNum>=120 && kamikazeEnemies[i].frameNum<180){
+						kamikazeEnemies[i].color = "#FF6346";
+					}else if(kamikazeEnemies[i].frameNum>=180){
+						kamikazeEnemies[i].color = "#E63818";
+					}
+					kamikazeEnemies[i].update();
+				}
+				
+				//kamikaze explosion
+				for(var i=0;i<kamikazeEnemies.length;i++){
+					if(kamikazeEnemies[i].frameNum==240){
+						x = kamikazeEnemies[i].x+(kamikazeEnemies[i].width/2);
+						y = kamikazeEnemies[i].y+(kamikazeEnemies[i].height/2);
+						kamikazeEnemies.splice(i, 1);
+						kamikazeExplosion.push(new circleModel(x, y, 9, 0, 2*Math.PI, "#A5A5A5"));
+					}
+				}
+				for(var i=0;i<kamikazeExplosion.length;i++){
+					kamikazeExplosion[i].frameNum++;
+					if(kamikazeExplosion[i].frameNum==1){
+						kamikazeExplosion[i].color = "#FFBCAF";
+						explodeDelay = kamikazeExplosion[i].frameNum;
+					}else if(kamikazeExplosion[i].frameNum>10){
+						kamikazeExplosion.splice(i, 1);
+					}else if(kamikazeExplosion[i].frameNum==explodeDelay+1){
+						if(kamikazeExplosion[i].frameNum==3){
+							kamikazeExplosion[i].color = "#FFC4B9";
+						}else if(kamikazeExplosion[i].frameNum==5){
+							kamikazeExplosion[i].color = "#FFCDC4";
+						}else if(kamikazeExplosion[i].frameNum==7){
+							kamikazeExplosion[i].color = "#FFD4CD";
+						}else if(kamikazeExplosion[i].frameNum==9){
+							kamikazeExplosion[i].color = "#FFDED8";
+						}
+						kamikazeExplosion[i].r+=12;
+						explodeDelay = kamikazeExplosion[i].frameNum;
+					}
+					kamikazeExplosion[i].update();
+				}
+				kamikazeBulletCollision();
+				playerKamikazeCollision();
+				playerKamikazeExplosionCollision();
+				
+				//rocket spawning and movement
+				if(gameArea.frameNum>=0){
+					if(frameInterval(60)){
+						x = gameArea.canvas.width;
+						y = randomInt(0, 556);
+						rocketEnemies.push(new rectangleModel(30, 20, "#AB7B7B", x, y));
+					}
+				}
+				for(var i=0;i<rocketEnemies.length;i++){
+					rocketEnemies[i].x-=3;
+					rocketEnemies[i].update();
+					rocketEnemies[i].frameNum++;
+				}
+				
+				//rocket shooting
+				for(var i=0;i<rocketEnemies.length;i++){
+					if(rocketEnemies[i].frameNum==1 || rocketEnemies[i].frameNum%120==0){
+						x = rocketEnemies[i].x-10;
+						y = rocketEnemies[i].y+6;
+						rocketBullets.push(new rectangleModel(16, 8, "#B9B2B2", x, y));
+					}
+				}
+				for(var i=0;i<rocketBullets.length;i++){
+					rocketBullets[i].x-=6;
+					rocketBullets[i].update();
+				}
+				
+				//rocket explosion FIX THIS
+				for(var i=0;i<rocketBullets.length;i++){
+					if(rocketBullets[i].x<=0){
+						for(var i=0;i<5;i++){
+							x = rocketBullets[i].x+randomInt(0, 30);
+							y = rocketBullets[i].y+randomInt(0, 20);
+							rocketExplosion.push(new circleModel(x, y, 18, 0, 2*Math.PI, "#B9B2B2"));
+						}
+						rocketBullets.splice(i, 1);
+					}
+				}
+				for(var i=0;i<rocketExplosion.length;i++){
+					rocketExplosion[i].frameNum++;
+					rocketExplosion[i].update();
+				}
+				
+				/*
+				basicOut();
+				basicBulletOut();
+				basicBulletCollision();
+				playerBasicBulletCollision();
+				playerBasicCollision();
+				*/
+				
 				//pick-up spawning and movement
 				if(gameArea.frameNum%3600==0){
-					weaponSpawn = randomInt(1,5);//there should be 7 when all weapons are implemented
+					weaponSpawn = randomInt(1,7);
 					x = gameArea.canvas.width+9;
 					y = randomInt(9, 557);
 					if(weaponSpawn==1){
@@ -552,7 +769,13 @@
 						pickUps.push(new circleModel(x, y, 9, 0, 2*Math.PI, "#CDCA28", "shotgun"));
 					}
 					if(weaponSpawn==5){
-						pickUps.push(new circleModel(x, y, 9, 0, 2*Math.PI, "#531DA7", "nova"));
+						pickUps.push(new circleModel(x, y, 9, 0, 2*Math.PI, "#9174BF", "nova"));
+					}
+					if(weaponSpawn==6){
+						pickUps.push(new circleModel(x, y, 9, 0, 2*Math.PI, "#4C80EE", "melee"));
+					}
+					if(weaponSpawn==7){
+						pickUps.push(new circleModel(x, y, 9, 0, 2*Math.PI, "#00E591", "beam"));
 					}
 				}
 				for(var i=0;i<pickUps.length;i++){
@@ -575,7 +798,13 @@
 								pickUps[i].color = "#CDCA28";
 							}
 							if(pickUps[i].type=="nova"){
-								pickUps[i].color = "#531DA7";
+								pickUps[i].color = "#9174BF";
+							}
+							if(pickUps[i].type=="melee"){
+								pickUps[i].color = "#4C80EE";
+							}
+							if(pickUps[i].type=="beam"){
+								pickUps[i].color = "#00E591";
 							}
 						}
 					}
@@ -594,6 +823,7 @@
 				if(player.health<=-3){
 					player.x=-1000000;
 					player.y=-1000000;
+					lives = 0;
 				}else{
 					player.x = (gameArea.canvas.width/2)-10;
 					player.y = (gameArea.canvas.height/2)-10;
@@ -629,13 +859,15 @@
 			function basicBulletCollision(){
 				for(var i=playerBullets.length-1;i>=0;i--){
 					for(var k=basicEnemies.length-1;k>=0;k--){
-						if(rectRectCollision(playerBullets[i], basicEnemies[k])&& invulnerability==false){
+						if((rectRectCollision(playerBullets[i], basicEnemies[k]) || rectCircCollision(basicEnemies[k], playerBullets[i]))&& invulnerability==false){
 							basicEnemies[k].health-=bulletDamage;
 							if(basicEnemies[k].health<=-1){
 								basicEnemies.splice(k, 1);
 								points+=10;
 							}
-							playerBullets.splice(i, 1);
+							if(playerBullets[i].bulletTag!=14){
+								playerBullets.splice(i, 1);
+							}
 						}
 					}
 				}
@@ -669,13 +901,15 @@
 			function chargerBulletCollision(){
 				for(var i=playerBullets.length-1;i>=0;i--){
 					for(var k=chargerEnemies.length-1;k>=0;k--){
-						if(rectRectCollision(playerBullets[i], chargerEnemies[k])&& invulnerability==false){
+						if((rectRectCollision(playerBullets[i], chargerEnemies[k]) || rectCircCollision(chargerEnemies[k], playerBullets[i]))&& invulnerability==false){
 							chargerEnemies[k].health-=bulletDamage;
-							if(chargerEnemies[k].health<=-2){
+							if(chargerEnemies[k].health<=-0.5){
 								chargerEnemies.splice(k, 1);
 								points+=20;
 							}
-							playerBullets.splice(i, 1);
+							if(playerBullets[i].bulletTag!=14){
+								playerBullets.splice(i, 1);
+							}
 						}
 					}
 				}
@@ -716,13 +950,15 @@
 			function lateralBulletCollision(){
 				for(var i=playerBullets.length-1;i>=0;i--){
 					for(var k=lateralEnemies.length-1;k>=0;k--){
-						if(rectRectCollision(playerBullets[i], lateralEnemies[k])&& invulnerability==false){
+						if((rectRectCollision(playerBullets[i], lateralEnemies[k]) || rectCircCollision(lateralEnemies[k], playerBullets[i]))&& invulnerability==false){
 							lateralEnemies[k].health-=bulletDamage;
 							if(lateralEnemies[k].health<=-3){
 								lateralEnemies.splice(k, 1);
 								points+=30;
 							}
-							playerBullets.splice(i, 1);
+							if(playerBullets[i].bulletTag!=14){
+								playerBullets.splice(i, 1);
+							}
 						}
 					}
 				}
@@ -765,13 +1001,15 @@
 			function bouncerBulletCollision(){
 				for(var i=playerBullets.length-1;i>=0;i--){
 					for(var k=bouncerEnemies.length-1;k>=0;k--){
-						if(rectRectCollision(playerBullets[i], bouncerEnemies[k])&& invulnerability==false){
+						if((rectRectCollision(playerBullets[i], bouncerEnemies[k]) || rectCircCollision(bouncerEnemies[k], playerBullets[i]))&& invulnerability==false){
 							bouncerEnemies[k].health-=bulletDamage;
-							if(bouncerEnemies[k].health<=-4){
+							if(bouncerEnemies[k].health<=-2){
 								bouncerEnemies.splice(k, 1);
 								points+=40;
 							}
-							playerBullets.splice(i, 1);
+							if(playerBullets[i].bulletTag!=14){
+								playerBullets.splice(i, 1);
+							}
 						}
 					}
 				}
@@ -796,12 +1034,15 @@
 			function snakeBulletCollision(){
 				for(var i=playerBullets.length-1;i>=0;i--){
 					for(var k=snakeEnemies.length-1;k>=0;k--){
-						if(rectRectCollision(playerBullets[i], snakeEnemies[k])&& invulnerability==false){
-							if(snakeEnemies[k].health<=2){
+						if((rectRectCollision(playerBullets[i], snakeEnemies[k]) || rectCircCollision(snakeEnemies[k], playerBullets[i]))&& invulnerability==false){
+							snakeEnemies[k].health-=bulletDamage;
+							if(snakeEnemies[k].health<=-2){
 								snakeEnemies.splice(k, 1);
 								points+=20;
 							}
-							playerBullets.splice(i, 1);
+							if(playerBullets[i].bulletTag!=14){
+								playerBullets.splice(i, 1);
+							}
 						}
 					}
 				}
@@ -846,7 +1087,7 @@
 			function blobBulletCollision(){
 				for(var i=playerBullets.length-1;i>=0;i--){
 					for(var k=blob1Enemies.length-1;k>=0;k--){
-						if(rectRectCollision(playerBullets[i], blob1Enemies[k])&& invulnerability==false){
+						if((rectRectCollision(playerBullets[i], blob1Enemies[k]) || rectCircCollision(blob1Enemies[k], playerBullets[i]))&& invulnerability==false){
 							blob1Enemies[k].health-=bulletDamage;
 							if(blob1Enemies[k].health<=-4){
 								points+=40;
@@ -856,11 +1097,13 @@
 								blobBottom2Enemies.push(new rectangleModel(28, 28, "#A6E1A1", x, y));
 								blob1Enemies.splice(k, 1);
 							}
-							playerBullets.splice(i, 1);
+							if(playerBullets[i].bulletTag!=14){
+								playerBullets.splice(i, 1);
+							}
 						}
 					}
 					for(var k=blobTop2Enemies.length-1;k>=0;k--){
-						if(rectRectCollision(playerBullets[i], blobTop2Enemies[k])&& invulnerability==false){
+						if((rectRectCollision(playerBullets[i], blobTop2Enemies[k]) || rectCircCollision(blobTop2Enemies[k], playerBullets[i]))&& invulnerability==false){
 							blobTop2Enemies[k].health-=bulletDamage;
 							if(blobTop2Enemies[k].health<=-2){
 								points+=20;
@@ -870,11 +1113,13 @@
 								blobBottom3Enemies.push(new rectangleModel(20, 20, "#A6E1A1", x, y));
 								blobTop2Enemies.splice(k, 1);
 							}
-							playerBullets.splice(i, 1);
+							if(playerBullets[i].bulletTag!=14){
+								playerBullets.splice(i, 1);
+							}
 						}
 					}
 					for(var k=blobBottom2Enemies.length-1;k>=0;k--){
-						if(rectRectCollision(playerBullets[i], blobBottom2Enemies[k])&& invulnerability==false){
+						if((rectRectCollision(playerBullets[i], blobBottom2Enemies[k]) || rectCircCollision(blobBottom2Enemies[k], playerBullets[i]))&& invulnerability==false){
 							blobBottom2Enemies[k].health-=bulletDamage;
 							if(blobBottom2Enemies[k].health<=-2){
 								points+=20;
@@ -884,27 +1129,33 @@
 								blobBottom3Enemies.push(new rectangleModel(20, 20, "#A6E1A1", x, y));
 								blobBottom2Enemies.splice(k, 1);
 							}
-							playerBullets.splice(i, 1);
+							if(playerBullets[i].bulletTag!=14){
+								playerBullets.splice(i, 1);
+							}
 						}
 					}
 					for(var k=blobTop3Enemies.length-1;k>=0;k--){
-						if(rectRectCollision(playerBullets[i], blobTop3Enemies[k])&& invulnerability==false){
+						if((rectRectCollision(playerBullets[i], blobTop3Enemies[k]) || rectCircCollision(blobTop3Enemies[k], playerBullets[i]))&& invulnerability==false){
 							blobTop3Enemies[k].health-=bulletDamage;
 							if(blobTop3Enemies[k].health<=-1){
 								blobTop3Enemies.splice(k, 1);
 								points+=10;
 							}
-							playerBullets.splice(i, 1);
+							if(playerBullets[i].bulletTag!=14){
+								playerBullets.splice(i, 1);
+							}
 						}
 					}
 					for(var k=blobBottom3Enemies.length-1;k>=0;k--){
-						if(rectRectCollision(playerBullets[i], blobBottom3Enemies[k])&& invulnerability==false){
+						if((rectRectCollision(playerBullets[i], blobBottom3Enemies[k]) || rectCircCollision(blobBottom3Enemies[k], playerBullets[i]))&& invulnerability==false){
 							blobBottom3Enemies[k].health-=bulletDamage;
 							if(blobBottom3Enemies[k].health<=-1){
 								blobBottom3Enemies.splice(k, 1);
 								points+=10;
 							}
-							playerBullets.splice(i, 1);
+							if(playerBullets[i].bulletTag!=14){
+								playerBullets.splice(i, 1);
+							}
 						}
 					}
 				}
@@ -938,6 +1189,39 @@
 				}
 			}
 			
+			function kamikazeBulletCollision(){
+				for(var i=playerBullets.length-1;i>=0;i--){
+					for(var k=kamikazeEnemies.length-1;k>=0;k--){
+						if((rectRectCollision(playerBullets[i], kamikazeEnemies[k]) || rectCircCollision(kamikazeEnemies[k], playerBullets[i]))&& invulnerability==false){
+							kamikazeEnemies[k].health-=bulletDamage;
+							if(kamikazeEnemies[k].health<=-4){
+								kamikazeEnemies.splice(k, 1);
+								points+=40;
+							}
+							if(playerBullets[i].bulletTag!=14){
+								playerBullets.splice(i, 1);
+							}
+						}
+					}
+				}
+			}
+			
+			function playerKamikazeCollision(){
+				for(var i=0;i<kamikazeEnemies.length;i++){
+					if(rectRectCollision(player, kamikazeEnemies[i])&& invulnerability==false){
+						death();
+					}
+				}
+			}
+			
+			function playerKamikazeExplosionCollision(){
+				for(var i=0;i<kamikazeExplosion.length;i++){
+					if(rectCircCollision(player, kamikazeExplosion[i])&& invulnerability==false){
+						death();
+					}
+				}
+			}
+			
 			//pick-up functions
 			function getPickUp(){
 				for(var i=0;i<pickUps.length;i++){
@@ -956,11 +1240,19 @@
 						}
 						if(pickUps[i].type=="shotgun"){
 							gunType = 4;
-							bulletDamage = 1;
+							bulletDamage = 0.5;
 						}
 						if(pickUps[i].type=="nova"){
 							gunType = 5;
 							bulletDamage = 1;
+						}
+						if(pickUps[i].type=="melee"){
+							gunType = 6;
+							bulletDamage = 1;
+						}
+						if(pickUps[i].type=="beam"){
+							gunType = 7;
+							bulletDamage = 0.33;
 						}
 						pickUps.splice(i, 1);
 					}
