@@ -754,7 +754,7 @@
 				*/
 				
 				//pick-up spawning and movement
-				if(gameArea.frameNum%3600==0){
+				if(gameArea.frameNum%60==0){
 					weaponSpawn = randomInt(1,7);
 					x = gameArea.canvas.width+9;
 					y = randomInt(9, 557);
