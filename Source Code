@@ -18,6 +18,7 @@
 	<body onload="runGame()">
 		<script>
 			//MAKE PLAYER LOSE POWERUP ON DEATH
+			//BEAM SHOULD DESTROY BULLETS
 			//player variables
 			var player;
 			var life;
