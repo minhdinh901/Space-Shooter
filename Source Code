@@ -17,6 +17,7 @@
 	</head>
 	<body onload="runGame()">
 		<script>
+			//MAKE PLAYER LOSE POWERUP ON DEATH
 			//player variables
 			var player;
 			var life;
