@@ -19,6 +19,9 @@
 		<script>
 			//MAKE PLAYER LOSE POWERUP ON DEATH
 			//BEAM SHOULD DESTROY BULLETS
+			//MAKE ENEMIES STRONGER AFTER TIME
+			//CREATE WEAPON UPGRADE SYSTEM
+			//ALLOW PLAYER TO HAVE MULTIPLE WEAPONS
 			//player variables
 			var player;
 			var life;
@@ -68,6 +71,7 @@
 			var points = 0;
 			var score;
 			var isPaused = false;
+			var healthMultiplier = 1;
 			
 			function runGame(){
 				gameArea.start();
@@ -428,6 +432,11 @@
 					beamStage[i].update();
 				}
 				
+				//enemy health multiplier
+				if(frameInterval(18000)){
+					healthMultiplier+=.2;
+				}
+				
 				//basic spawning and movement
 				if(gameArea.frameNum==1 || frameInterval(60)){	
 					x = gameArea.canvas.width;
@@ -754,7 +763,7 @@
 				*/
 				
 				//pick-up spawning and movement
-				if(gameArea.frameNum%60==0){
+				if(gameArea.frameNum%3600==0){
 					weaponSpawn = randomInt(1,7);
 					x = gameArea.canvas.width+9;
 					y = randomInt(9, 557);
@@ -863,7 +872,7 @@
 					for(var k=basicEnemies.length-1;k>=0;k--){
 						if((rectRectCollision(playerBullets[i], basicEnemies[k]) || rectCircCollision(basicEnemies[k], playerBullets[i]))&& invulnerability==false){
 							basicEnemies[k].health-=bulletDamage;
-							if(basicEnemies[k].health<=-1){
+							if(basicEnemies[k].health<=-1*healthMultiplier){
 								basicEnemies.splice(k, 1);
 								points+=10;
 							}
@@ -905,7 +914,7 @@
 					for(var k=chargerEnemies.length-1;k>=0;k--){
 						if((rectRectCollision(playerBullets[i], chargerEnemies[k]) || rectCircCollision(chargerEnemies[k], playerBullets[i]))&& invulnerability==false){
 							chargerEnemies[k].health-=bulletDamage;
-							if(chargerEnemies[k].health<=-0.5){
+							if(chargerEnemies[k].health<=-0.5*healthMultiplier){
 								chargerEnemies.splice(k, 1);
 								points+=20;
 							}
@@ -954,7 +963,7 @@
 					for(var k=lateralEnemies.length-1;k>=0;k--){
 						if((rectRectCollision(playerBullets[i], lateralEnemies[k]) || rectCircCollision(lateralEnemies[k], playerBullets[i]))&& invulnerability==false){
 							lateralEnemies[k].health-=bulletDamage;
-							if(lateralEnemies[k].health<=-3){
+							if(lateralEnemies[k].health<=-3*healthMultiplier){
 								lateralEnemies.splice(k, 1);
 								points+=30;
 							}
@@ -1005,7 +1014,7 @@
 					for(var k=bouncerEnemies.length-1;k>=0;k--){
 						if((rectRectCollision(playerBullets[i], bouncerEnemies[k]) || rectCircCollision(bouncerEnemies[k], playerBullets[i]))&& invulnerability==false){
 							bouncerEnemies[k].health-=bulletDamage;
-							if(bouncerEnemies[k].health<=-2){
+							if(bouncerEnemies[k].health<=-2*healthMultiplier){
 								bouncerEnemies.splice(k, 1);
 								points+=40;
 							}
@@ -1038,7 +1047,7 @@
 					for(var k=snakeEnemies.length-1;k>=0;k--){
 						if((rectRectCollision(playerBullets[i], snakeEnemies[k]) || rectCircCollision(snakeEnemies[k], playerBullets[i]))&& invulnerability==false){
 							snakeEnemies[k].health-=bulletDamage;
-							if(snakeEnemies[k].health<=-2){
+							if(snakeEnemies[k].health<=-2*healthMultiplier){
 								snakeEnemies.splice(k, 1);
 								points+=20;
 							}
@@ -1091,7 +1100,7 @@
 					for(var k=blob1Enemies.length-1;k>=0;k--){
 						if((rectRectCollision(playerBullets[i], blob1Enemies[k]) || rectCircCollision(blob1Enemies[k], playerBullets[i]))&& invulnerability==false){
 							blob1Enemies[k].health-=bulletDamage;
-							if(blob1Enemies[k].health<=-4){
+							if(blob1Enemies[k].health<=-4*healthMultiplier){
 								points+=40;
 								x = blob1Enemies[k].x+6;
 								y = blob1Enemies[k].y+6;
@@ -1107,7 +1116,7 @@
 					for(var k=blobTop2Enemies.length-1;k>=0;k--){
 						if((rectRectCollision(playerBullets[i], blobTop2Enemies[k]) || rectCircCollision(blobTop2Enemies[k], playerBullets[i]))&& invulnerability==false){
 							blobTop2Enemies[k].health-=bulletDamage;
-							if(blobTop2Enemies[k].health<=-2){
+							if(blobTop2Enemies[k].health<=-2*healthMultiplier){
 								points+=20;
 								x = blobTop2Enemies[k].x+4;
 								y = blobTop2Enemies[k].y+4;
@@ -1123,7 +1132,7 @@
 					for(var k=blobBottom2Enemies.length-1;k>=0;k--){
 						if((rectRectCollision(playerBullets[i], blobBottom2Enemies[k]) || rectCircCollision(blobBottom2Enemies[k], playerBullets[i]))&& invulnerability==false){
 							blobBottom2Enemies[k].health-=bulletDamage;
-							if(blobBottom2Enemies[k].health<=-2){
+							if(blobBottom2Enemies[k].health<=-2*healthMultiplier){
 								points+=20;
 								x = blobBottom2Enemies[k].x+4;
 								y = blobBottom2Enemies[k].y+4;
@@ -1139,7 +1148,7 @@
 					for(var k=blobTop3Enemies.length-1;k>=0;k--){
 						if((rectRectCollision(playerBullets[i], blobTop3Enemies[k]) || rectCircCollision(blobTop3Enemies[k], playerBullets[i]))&& invulnerability==false){
 							blobTop3Enemies[k].health-=bulletDamage;
-							if(blobTop3Enemies[k].health<=-1){
+							if(blobTop3Enemies[k].health<=-1*healthMultiplier){
 								blobTop3Enemies.splice(k, 1);
 								points+=10;
 							}
@@ -1151,7 +1160,7 @@
 					for(var k=blobBottom3Enemies.length-1;k>=0;k--){
 						if((rectRectCollision(playerBullets[i], blobBottom3Enemies[k]) || rectCircCollision(blobBottom3Enemies[k], playerBullets[i]))&& invulnerability==false){
 							blobBottom3Enemies[k].health-=bulletDamage;
-							if(blobBottom3Enemies[k].health<=-1){
+							if(blobBottom3Enemies[k].health<=-1*healthMultiplier){
 								blobBottom3Enemies.splice(k, 1);
 								points+=10;
 							}
@@ -1196,7 +1205,7 @@
 					for(var k=kamikazeEnemies.length-1;k>=0;k--){
 						if((rectRectCollision(playerBullets[i], kamikazeEnemies[k]) || rectCircCollision(kamikazeEnemies[k], playerBullets[i]))&& invulnerability==false){
 							kamikazeEnemies[k].health-=bulletDamage;
-							if(kamikazeEnemies[k].health<=-4){
+							if(kamikazeEnemies[k].health<=-4*healthMultiplier){
 								kamikazeEnemies.splice(k, 1);
 								points+=40;
 							}
