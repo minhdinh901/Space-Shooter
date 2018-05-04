@@ -730,12 +730,12 @@
 				}
 				for(var i=0;i<dashEnemies.length;i++){
 					dashEnemies[i].frameNum++;
-					if(dashEnemies[i].frameNum==1 || dashEnemies[i].frameNum%20==0){
+					if(dashEnemies[i].frameNum==1 || dashEnemies[i].frameNum%30==0){
 						dashEnemies[i].dash = true;
 					}
 					if(dashEnemies[i].dash==true){
 						dashDelay = gameArea.frameNum;
-						dashX = randomFloat(-5, -4);
+						dashX = randomFloat(-10, -5);
 						dashY = randomFloat(-15, 15);
 						dashEnemies[i].dash = false;
 					}
@@ -756,8 +756,8 @@
 				playerDashCollision();
 				
 				//flamethrower spawning and movement
-				/*if(gameArea.frameNum>=0){
-					if(frameInterval(60)){
+				if(gameArea.frameNum>=14400){
+					if(frameInterval(540)){
 						x = gameArea.canvas.width;
 						y = randomInt(0, 551);
 						flamethrowerEnemies.push(new rectangleModel(25, 25, "#E26E1E", x, y));
@@ -767,20 +767,44 @@
 					flamethrowerEnemies[i].x-=2.5;
 					flamethrowerEnemies[i].update();
 					flamethrowerEnemies[i].frameNum++;
-				}*/
+				}
 				
-				//flamethrower shooting FIX THIS
-				/*for(var i=0;i<flamethrowerEnemies.length;i++){
-					if(flamethrowerEnemies[i].frameNum%90==0){
-						x = flamethrowerEnemies[i].x-10;
-						y = flamethrowerEnemies[i].y+6;
-						flamethrowerBullets.push(new circleModel(x, y, 9, 0, 2*Math.PI, "#93FFF7"));
+				//flamethrower shooting
+				for(var i=0;i<flamethrowerEnemies.length;i++){
+					if(flamethrowerEnemies[i].frameNum%1==0){
+						x = flamethrowerEnemies[i].x;
+						y = flamethrowerEnemies[i].y+12.5;
+						flamethrowerBullets.push(new circleModel(x, y, 5, 0, 2*Math.PI, "#FFFFFF"));
 					}
 				}
-				for(var i=0;i<basicBullets.length;i++){
+				for(var i=0;i<flamethrowerBullets.length;i++){
+					flamethrowerBullets[i].frameNum++;
+					if(flamethrowerBullets[i].hasSpread==false){
+						flamethrowerBullets[i].spread = randomFloat(-0.5, 0.5);
+						flamethrowerBullets[i].hasSpread = true;
+					}
+					if(flamethrowerBullets[i].frameNum>=5 && flamethrowerBullets[i].frameNum<10){
+						flamethrowerBullets[i].color = "#FCCEBC";
+					}else if(flamethrowerBullets[i].frameNum>=10 && flamethrowerBullets[i].frameNum<15){
+						flamethrowerBullets[i].color = "#E3C84F";
+					}else if(flamethrowerBullets[i].frameNum>=15 && flamethrowerBullets[i].frameNum<20){
+						flamethrowerBullets[i].color = "#D68B18";
+					}else if(flamethrowerBullets[i].frameNum>=20 && flamethrowerBullets[i].frameNum<25){
+						flamethrowerBullets[i].color = "#E4750D";
+					}else if(flamethrowerBullets[i].frameNum>=25){
+						flamethrowerBullets[i].color = "#C44410";
+					}
+					if(flamethrowerBullets[i].frameNum>randomInt(60, 120)){
+						flamethrowerBullets.splice(i, 1);
+					}
+					flamethrowerBullets[i].y+=flamethrowerBullets[i].spread;
 					flamethrowerBullets[i].x-=4;
 					flamethrowerBullets[i].update();
-				}*/
+				}
+				flamethrowerOut();
+				flamethrowerBulletCollision();
+				playerFlamethrowerBulletCollision();
+				playerFlamethrowerCollision();
 				
 				//pick-up spawning and movement
 				if(gameArea.frameNum%3600==0){
@@ -851,7 +875,6 @@
 			function death(){
 				player.health--;
 				lives--;
-				gunType = 0;
 				if(player.health<=-3){
 					player.x=-1000000;
 					player.y=-1000000;
@@ -1323,6 +1346,47 @@
 				}
 			}
 			
+			function flamethrowerOut(){
+				for(var i=0;i<flamethrowerEnemies.length;i++){
+					if(flamethrowerEnemies[i].x+25<0){
+						flamethrowerEnemies.splice(i, 1);
+					}
+				}
+			}
+			
+			function flamethrowerBulletCollision(){
+				for(var i=playerBullets.length-1;i>=0;i--){
+					for(var k=flamethrowerEnemies.length-1;k>=0;k--){
+						if((rectRectCollision(playerBullets[i], flamethrowerEnemies[k]) || rectCircCollision(flamethrowerEnemies[k], playerBullets[i]))&& invulnerability==false){
+							flamethrowerEnemies[k].health-=bulletDamage;
+							if(flamethrowerEnemies[k].health<=-5*healthMultiplier){
+								flamethrowerEnemies.splice(k, 1);
+								points+=30;
+							}
+							if(playerBullets[i].bulletTag!=14 && playerBullets[i].type!="melee"){
+								playerBullets.splice(i, 1);
+							}
+						}
+					}
+				}
+			}
+			
+			function playerFlamethrowerBulletCollision(){
+				for(var i=0;i<flamethrowerBullets.length;i++){
+					if(rectCircCollision(player, flamethrowerBullets[i])&& invulnerability==false){
+						death();
+					}
+				}
+			}
+			
+			function playerFlamethrowerCollision(){
+				for(var i=0;i<flamethrowerEnemies.length;i++){
+					if(rectRectCollision(player, flamethrowerEnemies[i])&& invulnerability==false){
+						death();
+					}
+				}
+			}
+			
 			//pick-up functions
 			function getPickUp(){
 				for(var i=0;i<pickUps.length;i++){
@@ -1349,7 +1413,7 @@
 						}
 						if(pickUps[i].type=="melee"){
 							gunType = 6;
-							bulletDamage = 0.2;
+							bulletDamage = 0.4;
 						}
 						if(pickUps[i].type=="beam"){
 							gunType = 7;
@@ -1414,6 +1478,8 @@
 				this.color = color;
 				this.type = type;
 				this.frameNum = 0;
+				this.hasSpread = false;
+				this.spread = 0;
 				this.update = function(){
 					ctx = gameArea.context;
 					ctx.beginPath();
