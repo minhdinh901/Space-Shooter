@@ -54,6 +54,8 @@
 			var dashY;
 			var flamethrowerEnemies = [];
 			var flamethrowerBullets = [];
+			var barrierEnemies = [];
+			var barrierLazer = [];
 			
 			//pick-up variables
 			var pickUps = [];
@@ -71,7 +73,7 @@
 			var points = 0;
 			var score;
 			var isPaused = false;
-			var healthMultiplier = 1;
+			var enemyMultiplier = 1;
 			
 			function runGame(){
 				gameArea.start();
@@ -136,25 +138,25 @@
 				player.speedX = 0;
 				player.speedY = 0;
 				if(gameArea.keys && (gameArea.keys[37] || gameArea.keys[65])){
-					player.speedX-=4;
+					player.speedX-=4.5;
 					if(player.x<=1){
 						player.speedX=0;
 					}
 				}
 				if(gameArea.keys && (gameArea.keys[39] || gameArea.keys[68])){
-					player.speedX+=4;
+					player.speedX+=4.5;
 					if(player.x>=1003){
 						player.speedX=0;
 					}
 				}
 				if(gameArea.keys && (gameArea.keys[38] || gameArea.keys[87])){
-					player.speedY-=4;	
+					player.speedY-=4.5;	
 					if(player.y<=2){
 						player.speedY=0;
 					}
 				}
 				if(gameArea.keys && (gameArea.keys[40] || gameArea.keys[83])){
-					player.speedY+=4;
+					player.speedY+=4.5;
 					if(player.y>=554){
 						player.speedY=0;
 					}
@@ -440,7 +442,7 @@
 				
 				//enemy health multiplier
 				if(frameInterval(18000)){
-					healthMultiplier+=.2;
+					enemyMultiplier+=.2;
 				}
 				
 				//basic spawning and movement
@@ -806,6 +808,43 @@
 				playerFlamethrowerBulletCollision();
 				playerFlamethrowerCollision();
 				
+				//barrier and lazer spawning and movement
+				if(gameArea.frameNum>=16200){
+					if(frameInterval(1020)){
+						x = gameArea.canvas.width;
+						y = randomInt(88, 413);
+						barrierEnemies.push(new rectangleModel(20, 30, "#B024D6", x, y));
+						lazerX = barrierEnemies[barrierEnemies.length-1].x+1;
+						lazerSide = randomInt(1, 2);
+						if(lazerSide==1){
+							lazerY = barrierEnemies[barrierEnemies.length-1].y-576;
+						}else{
+							lazerY = barrierEnemies[barrierEnemies.length-1].y+30;
+						}
+						barrierLazer.push(new rectangleModel(18, 576, "#DA1CE3", lazerX, lazerY));
+					}
+				}
+				for(var i=0;i<barrierEnemies.length;i++){
+					barrierEnemies[i].x-=1.5;
+					barrierEnemies[i].update();
+					barrierEnemies[i].frameNum++;
+				}
+				
+				for(var i=0;i<barrierLazer.length;i++){
+					barrierLazer[i].frameNum++;
+					if(barrierLazer[i].frameNum%10==0){
+						barrierLazer[i].color = "#DA1CE3";
+					}else if(barrierLazer[i].frameNum%5==0){
+						barrierLazer[i].color = "#F74CFF";
+					}
+					barrierLazer[i].x-=1.5;
+					barrierLazer[i].update();
+				}
+				barrierOut();
+				barrierBulletCollision();
+				playerBarrierLazerCollision();
+				playerBarrierCollision();
+				
 				//pick-up spawning and movement
 				if(gameArea.frameNum%3600==0){
 					weaponSpawn = randomInt(1,7);
@@ -916,9 +955,9 @@
 					for(var k=basicEnemies.length-1;k>=0;k--){
 						if((rectRectCollision(playerBullets[i], basicEnemies[k]) || rectCircCollision(basicEnemies[k], playerBullets[i]))&& invulnerability==false){
 							basicEnemies[k].health-=bulletDamage;
-							if(basicEnemies[k].health<=-1*healthMultiplier){
+							if(basicEnemies[k].health<=-1*enemyMultiplier){
 								basicEnemies.splice(k, 1);
-								points+=10;
+								points+=10*enemyMultiplier;
 							}
 							if(playerBullets[i].bulletTag!=14 && playerBullets[i].type!="melee"){
 								playerBullets.splice(i, 1);
@@ -970,9 +1009,9 @@
 					for(var k=chargerEnemies.length-1;k>=0;k--){
 						if((rectRectCollision(playerBullets[i], chargerEnemies[k]) || rectCircCollision(chargerEnemies[k], playerBullets[i]))&& invulnerability==false){
 							chargerEnemies[k].health-=bulletDamage;
-							if(chargerEnemies[k].health<=-0.5*healthMultiplier){
+							if(chargerEnemies[k].health<=-1*enemyMultiplier){
 								chargerEnemies.splice(k, 1);
-								points+=20;
+								points+=10*enemyMultiplier;
 							}
 							if(playerBullets[i].bulletTag!=14 && playerBullets[i].type!="melee"){
 								playerBullets.splice(i, 1);
@@ -1019,9 +1058,9 @@
 					for(var k=lateralEnemies.length-1;k>=0;k--){
 						if((rectRectCollision(playerBullets[i], lateralEnemies[k]) || rectCircCollision(lateralEnemies[k], playerBullets[i]))&& invulnerability==false){
 							lateralEnemies[k].health-=bulletDamage;
-							if(lateralEnemies[k].health<=-3*healthMultiplier){
+							if(lateralEnemies[k].health<=-3*enemyMultiplier){
 								lateralEnemies.splice(k, 1);
-								points+=30;
+								points+=30*enemyMultiplier;
 							}
 							if(playerBullets[i].bulletTag!=14 && playerBullets[i].type!="melee"){
 								playerBullets.splice(i, 1);
@@ -1094,9 +1133,9 @@
 					for(var k=bouncerEnemies.length-1;k>=0;k--){
 						if((rectRectCollision(playerBullets[i], bouncerEnemies[k]) || rectCircCollision(bouncerEnemies[k], playerBullets[i]))&& invulnerability==false){
 							bouncerEnemies[k].health-=bulletDamage;
-							if(bouncerEnemies[k].health<=-2*healthMultiplier){
+							if(bouncerEnemies[k].health<=-2*enemyMultiplier){
 								bouncerEnemies.splice(k, 1);
-								points+=40;
+								points+=20*enemyMultiplier;
 							}
 							if(playerBullets[i].bulletTag!=14 && playerBullets[i].type!="melee"){
 								playerBullets.splice(i, 1);
@@ -1127,9 +1166,9 @@
 					for(var k=snakeEnemies.length-1;k>=0;k--){
 						if((rectRectCollision(playerBullets[i], snakeEnemies[k]) || rectCircCollision(snakeEnemies[k], playerBullets[i]))&& invulnerability==false){
 							snakeEnemies[k].health-=bulletDamage;
-							if(snakeEnemies[k].health<=-2*healthMultiplier){
+							if(snakeEnemies[k].health<=-2*enemyMultiplier){
 								snakeEnemies.splice(k, 1);
-								points+=20;
+								points+=20*enemyMultiplier;
 							}
 							if(playerBullets[i].bulletTag!=14 && playerBullets[i].type!="melee"){
 								playerBullets.splice(i, 1);
@@ -1180,8 +1219,8 @@
 					for(var k=blob1Enemies.length-1;k>=0;k--){
 						if((rectRectCollision(playerBullets[i], blob1Enemies[k]) || rectCircCollision(blob1Enemies[k], playerBullets[i]))&& invulnerability==false){
 							blob1Enemies[k].health-=bulletDamage;
-							if(blob1Enemies[k].health<=-4*healthMultiplier){
-								points+=40;
+							if(blob1Enemies[k].health<=-4*enemyMultiplier){
+								points+=40*enemyMultiplier;
 								x = blob1Enemies[k].x+6;
 								y = blob1Enemies[k].y+6;
 								blobTop2Enemies.push(new rectangleModel(28, 28, "#A6E1A1", x, y));
@@ -1196,8 +1235,8 @@
 					for(var k=blobTop2Enemies.length-1;k>=0;k--){
 						if((rectRectCollision(playerBullets[i], blobTop2Enemies[k]) || rectCircCollision(blobTop2Enemies[k], playerBullets[i]))&& invulnerability==false){
 							blobTop2Enemies[k].health-=bulletDamage;
-							if(blobTop2Enemies[k].health<=-2*healthMultiplier){
-								points+=20;
+							if(blobTop2Enemies[k].health<=-2*enemyMultiplier){
+								points+=20*enemyMultiplier;
 								x = blobTop2Enemies[k].x+4;
 								y = blobTop2Enemies[k].y+4;
 								blobTop3Enemies.push(new rectangleModel(20, 20, "#A6E1A1", x, y));
@@ -1212,8 +1251,8 @@
 					for(var k=blobBottom2Enemies.length-1;k>=0;k--){
 						if((rectRectCollision(playerBullets[i], blobBottom2Enemies[k]) || rectCircCollision(blobBottom2Enemies[k], playerBullets[i]))&& invulnerability==false){
 							blobBottom2Enemies[k].health-=bulletDamage;
-							if(blobBottom2Enemies[k].health<=-2*healthMultiplier){
-								points+=20;
+							if(blobBottom2Enemies[k].health<=-2*enemyMultiplier){
+								points+=20*enemyMultiplier;
 								x = blobBottom2Enemies[k].x+4;
 								y = blobBottom2Enemies[k].y+4;
 								blobTop3Enemies.push(new rectangleModel(20, 20, "#A6E1A1", x, y));
@@ -1228,9 +1267,9 @@
 					for(var k=blobTop3Enemies.length-1;k>=0;k--){
 						if((rectRectCollision(playerBullets[i], blobTop3Enemies[k]) || rectCircCollision(blobTop3Enemies[k], playerBullets[i]))&& invulnerability==false){
 							blobTop3Enemies[k].health-=bulletDamage;
-							if(blobTop3Enemies[k].health<=-1*healthMultiplier){
+							if(blobTop3Enemies[k].health<=-1*enemyMultiplier){
 								blobTop3Enemies.splice(k, 1);
-								points+=10;
+								points+=10*enemyMultiplier;
 							}
 							if(playerBullets[i].bulletTag!=14 && playerBullets[i].type!="melee"){
 								playerBullets.splice(i, 1);
@@ -1240,9 +1279,9 @@
 					for(var k=blobBottom3Enemies.length-1;k>=0;k--){
 						if((rectRectCollision(playerBullets[i], blobBottom3Enemies[k]) || rectCircCollision(blobBottom3Enemies[k], playerBullets[i]))&& invulnerability==false){
 							blobBottom3Enemies[k].health-=bulletDamage;
-							if(blobBottom3Enemies[k].health<=-1*healthMultiplier){
+							if(blobBottom3Enemies[k].health<=-1*enemyMultiplier){
 								blobBottom3Enemies.splice(k, 1);
-								points+=10;
+								points+=10*enemyMultiplier;
 							}
 							if(playerBullets[i].bulletTag!=14 && playerBullets[i].type!="melee"){
 								playerBullets.splice(i, 1);
@@ -1285,9 +1324,9 @@
 					for(var k=kamikazeEnemies.length-1;k>=0;k--){
 						if((rectRectCollision(playerBullets[i], kamikazeEnemies[k]) || rectCircCollision(kamikazeEnemies[k], playerBullets[i]))&& invulnerability==false){
 							kamikazeEnemies[k].health-=bulletDamage;
-							if(kamikazeEnemies[k].health<=-4*healthMultiplier){
+							if(kamikazeEnemies[k].health<=-4*enemyMultiplier){
 								kamikazeEnemies.splice(k, 1);
-								points+=40;
+								points+=40*enemyMultiplier;
 							}
 							if(playerBullets[i].bulletTag!=14 && playerBullets[i].type!="melee"){
 								playerBullets.splice(i, 1);
@@ -1326,9 +1365,9 @@
 					for(var k=dashEnemies.length-1;k>=0;k--){
 						if((rectRectCollision(playerBullets[i], dashEnemies[k]) || rectCircCollision(dashEnemies[k], playerBullets[i]))&& invulnerability==false){
 							dashEnemies[k].health-=bulletDamage;
-							if(dashEnemies[k].health<=-1.5*healthMultiplier){
+							if(dashEnemies[k].health<=-2*enemyMultiplier){
 								dashEnemies.splice(k, 1);
-								points+=30;
+								points+=20*enemyMultiplier;
 							}
 							if(playerBullets[i].bulletTag!=14 && playerBullets[i].type!="melee"){
 								playerBullets.splice(i, 1);
@@ -1359,9 +1398,9 @@
 					for(var k=flamethrowerEnemies.length-1;k>=0;k--){
 						if((rectRectCollision(playerBullets[i], flamethrowerEnemies[k]) || rectCircCollision(flamethrowerEnemies[k], playerBullets[i]))&& invulnerability==false){
 							flamethrowerEnemies[k].health-=bulletDamage;
-							if(flamethrowerEnemies[k].health<=-5*healthMultiplier){
+							if(flamethrowerEnemies[k].health<=-5*enemyMultiplier){
 								flamethrowerEnemies.splice(k, 1);
-								points+=30;
+								points+=50*enemyMultiplier;
 							}
 							if(playerBullets[i].bulletTag!=14 && playerBullets[i].type!="melee"){
 								playerBullets.splice(i, 1);
@@ -1382,6 +1421,48 @@
 			function playerFlamethrowerCollision(){
 				for(var i=0;i<flamethrowerEnemies.length;i++){
 					if(rectRectCollision(player, flamethrowerEnemies[i])&& invulnerability==false){
+						death();
+					}
+				}
+			}
+			
+			function barrierOut(){
+				for(var i=0;i<barrierEnemies.length;i++){
+					if(barrierEnemies[i].x+20<0){
+						barrierEnemies.splice(i, 1);
+						barrierLazer.splice(i, 1);
+					}
+				}
+			}
+			function barrierBulletCollision(){
+				for(var i=playerBullets.length-1;i>=0;i--){
+					for(var k=barrierEnemies.length-1;k>=0;k--){
+						if((rectRectCollision(playerBullets[i], barrierEnemies[k]) || rectCircCollision(barrierEnemies[k], playerBullets[i]))&& invulnerability==false){
+							barrierEnemies[k].health-=bulletDamage;
+							if(barrierEnemies[k].health<=-4*enemyMultiplier){
+								barrierEnemies.splice(k, 1);
+								barrierLazer.splice(k, 1);
+								points+=40*enemyMultiplier;
+							}
+							if(playerBullets[i].bulletTag!=14 && playerBullets[i].type!="melee"){
+								playerBullets.splice(i, 1);
+							}
+						}
+					}
+				}
+			}
+			
+			function playerBarrierLazerCollision(){
+				for(var i=0;i<barrierLazer.length;i++){
+					if(rectRectCollision(player, barrierLazer[i])&& invulnerability==false){
+						death();
+					}
+				}
+			}
+			
+			function playerBarrierCollision(){
+				for(var i=0;i<barrierEnemies.length;i++){
+					if(rectRectCollision(player, barrierEnemies[i])&& invulnerability==false){
 						death();
 					}
 				}
