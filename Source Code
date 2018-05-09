@@ -441,8 +441,8 @@
 				}
 				
 				//enemy health multiplier
-				if(frameInterval(18000)){
-					enemyMultiplier+=.2;
+				if(gameArea.frameNum>18000 && frameInterval(9000)){
+					enemyMultiplier+=0.5;
 				}
 				
 				//basic spawning and movement
@@ -1474,11 +1474,11 @@
 					if(rectCircCollision(player, pickUps[i])){
 						if(pickUps[i].type=="lazer"){
 							gunType = 1;
-							bulletDamage = 0.5;
+							bulletDamage = 0.6;
 						}
 						if(pickUps[i].type=="machine gun"){
 							gunType = 2;
-							bulletDamage = 0.3;
+							bulletDamage = 0.4;
 						}
 						if(pickUps[i].type=="split"){
 							gunType = 3;
@@ -1486,7 +1486,7 @@
 						}
 						if(pickUps[i].type=="shotgun"){
 							gunType = 4;
-							bulletDamage = 0.6;
+							bulletDamage = 0.75;
 						}
 						if(pickUps[i].type=="nova"){
 							gunType = 5;
@@ -1498,7 +1498,7 @@
 						}
 						if(pickUps[i].type=="beam"){
 							gunType = 7;
-							bulletDamage = 0.08;
+							bulletDamage = 0.2;
 						}
 						pickUps.splice(i, 1);
 					}
