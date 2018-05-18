@@ -56,6 +56,14 @@
 			var flamethrowerBullets = [];
 			var barrierEnemies = [];
 			var barrierLazer = [];
+			var entity = [];
+			var entityBullets = [];
+			var entityDelay;
+			var entityCount;
+			var entityTag;
+			var entityCorner;
+			var entityColor;
+			var entityNova = 38;
 			
 			//pick-up variables
 			var pickUps = [];
@@ -190,7 +198,7 @@
 						if(isShooting && (shotFrame==1 || shotFrame%6==0)){
 							x = player.x+player.width;
 							y = player.y+8;
-							playerBullets.push(new rectangleModel(42, 4, "#93FFF7", x, y));
+							playerBullets.push(new rectangleModel(60, 4, "#93FFF7", x, y));
 						}
 						beamFull = false;
 						shootBeam = false;
@@ -210,7 +218,7 @@
 							splitNum = 1;
 							for(var i=0;i<5;i++){
 								playerBullets.push(new rectangleModel(16, 8, "#F68A09", x, y));
-								playerBullets[playerBullets.length-1].bulletTag = splitNum;
+								playerBullets[playerBullets.length-1].tag = splitNum;
 								splitNum++;
 								y+=8;
 							}
@@ -234,44 +242,44 @@
 						if(novaNum<8){
 							if(novaNum==0){
 								playerBullets.push(new rectangleModel(14, 14, "#9174BF", player.x+player.width, player.y+3));
-								playerBullets[playerBullets.length-1].bulletTag = 6;
+								playerBullets[playerBullets.length-1].tag = 6;
 								novaDelay = gameArea.frameNum;
 								novaNum++;
 							}
 							if(gameArea.frameNum==novaDelay+4){
 								if(novaNum==1){
 									playerBullets.push(new rectangleModel(14, 14, "#9174BF", player.x+player.width, player.y-14));
-									playerBullets[playerBullets.length-1].bulletTag = 7;
+									playerBullets[playerBullets.length-1].tag = 7;
 									novaDelay = gameArea.frameNum;
 									novaNum++;
 								}else if(novaNum==2){
 									playerBullets.push(new rectangleModel(14, 14, "#9174BF", player.x+3, player.y-14));
-									playerBullets[playerBullets.length-1].bulletTag = 8;
+									playerBullets[playerBullets.length-1].tag = 8;
 									novaDelay = gameArea.frameNum;
 									novaNum++;
 								}else if(novaNum==3){
 									playerBullets.push(new rectangleModel(14, 14, "#9174BF", player.x-14, player.y-14));
-									playerBullets[playerBullets.length-1].bulletTag = 9;
+									playerBullets[playerBullets.length-1].tag = 9;
 									novaDelay = gameArea.frameNum;
 									novaNum++;
 								}else if(novaNum==4){
 									playerBullets.push(new rectangleModel(14, 14, "#9174BF", player.x-14, player.y+3));
-									playerBullets[playerBullets.length-1].bulletTag = 10;
+									playerBullets[playerBullets.length-1].tag = 10;
 									novaDelay = gameArea.frameNum;
 									novaNum++;
 								}else if(novaNum==5){
 									playerBullets.push(new rectangleModel(14, 14, "#9174BF", player.x-14, player.y+player.height));
-									playerBullets[playerBullets.length-1].bulletTag = 11;
+									playerBullets[playerBullets.length-1].tag = 11;
 									novaDelay = gameArea.frameNum;
 									novaNum++;
 								}else if(novaNum==6){
 									playerBullets.push(new rectangleModel(14, 14, "#9174BF", player.x+3, player.y+player.height));
-									playerBullets[playerBullets.length-1].bulletTag = 12;
+									playerBullets[playerBullets.length-1].tag = 12;
 									novaDelay = gameArea.frameNum;
 									novaNum++;
 								}else if(novaNum==7){
 									playerBullets.push(new rectangleModel(14, 14, "#9174BF", player.x+player.width, player.y+player.height));
-									playerBullets[playerBullets.length-1].bulletTag = 13;
+									playerBullets[playerBullets.length-1].tag = 13;
 									novaNum++;
 								}
 							}
@@ -291,7 +299,7 @@
 							x = player.x+player.width;
 							y = player.y+9;
 							beamStage.push(new rectangleModel(1024, 2, "#10FFA8", x, y));
-							beamStage[beamStage.length-1].bulletTag = 0;
+							beamStage[beamStage.length-1].tag = 0;
 						}
 					}else{
 						if(isShooting && (shotFrame==1 || shotFrame%15==0)){
@@ -307,7 +315,7 @@
 					x = player.x+player.width;
 					y = player.y-6;
 					playerBullets.push(new rectangleModel(1024, 32, "#00E591", x, y));
-					playerBullets[playerBullets.length-1].bulletTag = 14;
+					playerBullets[playerBullets.length-1].tag = 14;
 					shootBeamDelay = gameArea.frameNum;
 					shootBeam = false;
 				}
@@ -315,7 +323,7 @@
 				//bullet movement
 				for(var i=0;i<playerBullets.length;i++){
 					if(gunType==1){
-						playerBullets[i].x+=7;
+						playerBullets[i].x+=10;
 					}else if(gunType==2){
 						if(playerBullets[i].hasSpread==false){
 							sign = randomInt(0, 1);
@@ -330,16 +338,16 @@
 						playerBullets[i].y+=playerBullets[i].spread;
 					}else if(gunType==3){
 						playerBullets[i].x+=7;
-						if(playerBullets[i].bulletTag==1){
+						if(playerBullets[i].tag==1){
 							playerBullets[i].y-=2;
 						}
-						if(playerBullets[i].bulletTag==2){
+						if(playerBullets[i].tag==2){
 							playerBullets[i].y-=1;
 						}
-						if(playerBullets[i].bulletTag==4){
+						if(playerBullets[i].tag==4){
 							playerBullets[i].y+=1;
 						}
-						if(playerBullets[i].bulletTag==5){
+						if(playerBullets[i].tag==5){
 							playerBullets[i].y+=2;
 						}
 					}else if(gunType==4){
@@ -355,43 +363,43 @@
 						playerBullets[i].x+=30;
 						playerBullets[i].y+=playerBullets[i].spread;
 					}else if(gunType==5){
-						if(playerBullets[i].bulletTag==6){
+						if(playerBullets[i].tag==6){
 							playerBullets[i].x+=5;
-						}else if(playerBullets[i].bulletTag==7){
+						}else if(playerBullets[i].tag==7){
 							playerBullets[i].x+=5;
 							playerBullets[i].y-=5;
-						}else if(playerBullets[i].bulletTag==8){
+						}else if(playerBullets[i].tag==8){
 							playerBullets[i].y-=5;
-						}else if(playerBullets[i].bulletTag==9){
+						}else if(playerBullets[i].tag==9){
 							playerBullets[i].x-=5;
 							playerBullets[i].y-=5;
-						}else if(playerBullets[i].bulletTag==10){
+						}else if(playerBullets[i].tag==10){
 							playerBullets[i].x-=5;
-						}else if(playerBullets[i].bulletTag==11){
+						}else if(playerBullets[i].tag==11){
 							playerBullets[i].x-=5;
 							playerBullets[i].y+=5;
-						}else if(playerBullets[i].bulletTag==12){
+						}else if(playerBullets[i].tag==12){
 							playerBullets[i].y+=5;
-						}else if(playerBullets[i].bulletTag==13){
+						}else if(playerBullets[i].tag==13){
 							playerBullets[i].x+=5;
 							playerBullets[i].y+=5;
-						}else if(playerBullets[i].bulletTag!=6 && 
-								 playerBullets[i].bulletTag!=7 && 
-								 playerBullets[i].bulletTag!=8 && 
-								 playerBullets[i].bulletTag!=9 && 
-								 playerBullets[i].bulletTag!=10 && 
-								 playerBullets[i].bulletTag!=11 && 
-								 playerBullets[i].bulletTag!=12){
+						}else if(playerBullets[i].tag!=6 && 
+								 playerBullets[i].tag!=7 && 
+								 playerBullets[i].tag!=8 && 
+								 playerBullets[i].tag!=9 && 
+								 playerBullets[i].tag!=10 && 
+								 playerBullets[i].tag!=11 && 
+								 playerBullets[i].tag!=12){
 							playerBullets[i].x+=6;
 						}
 					}else if(gunType==6){
 						playerBullets[i].frameNum++;
-						if(playerBullets[i].frameNum==15){
-							playerBullets.splice(i, 1);
+						if(playerBullets[i].frameNum==20){
+							playerBullets[i].x = -2000;
 						}
 						playerBullets[i].x+=20;
 					}else if(gunType==7){
-						if(playerBullets[i].bulletTag==14){
+						if(playerBullets[i].tag==14){
 							playerBullets[i].x = player.x+player.width;
 							playerBullets[i].y = player.y-6;
 							if(gameArea.frameNum%10==0){
@@ -414,18 +422,18 @@
 				
 				//special movement for beam charge up
 				for(var i=0;i<beamStage.length;i++){
-					if(beamStage[i].bulletTag==0){
+					if(beamStage[i].tag==0){
 						beamDelay = gameArea.frameNum;
 						beamCharge = 9;
-						beamStage[i].bulletTag++;
+						beamStage[i].tag++;
 					}
 					if(gameArea.frameNum==beamDelay+3){
-						beamStage[i].bulletTag++;
+						beamStage[i].tag++;
 						beamCharge--;
 						beamStage[i].height+=2;
 						beamDelay = gameArea.frameNum;
 					}
-					if(beamStage[i].bulletTag>=16){
+					if(beamStage[i].tag>=16){
 						if(shotFrame%20==0){
 							beamStage[i].color = "#DEFF0F";
 						}else{
@@ -808,7 +816,7 @@
 				playerFlamethrowerBulletCollision();
 				playerFlamethrowerCollision();
 				
-				//barrier and lazer spawning and movement
+				//barrier spawning and movement
 				if(gameArea.frameNum>=16200){
 					if(frameInterval(1020)){
 						x = gameArea.canvas.width;
@@ -845,9 +853,256 @@
 				playerBarrierLazerCollision();
 				playerBarrierCollision();
 				
+				//entity spawning and movement
+				if(gameArea.frameNum==1 || frameInterval(18000)){	
+					entity.push(new rectangleModel(100, 100, "#7E037A", gameArea.canvas.width, 238));
+					entity[entity.length-1].tag = 15;
+					entityDelay = gameArea.frameNum;
+					entityCount = 0;
+					entityTag = 16;
+				}
+				if(entityCount<14){
+					if(gameArea.frameNum==entityDelay+20){
+						for(var i=0;i<entity.length;i++){
+							if(entity[i].tag==15){
+								entityCorner = entity[i].x+125;
+							}
+						}
+						if(entityCount==0){
+							entityColor = "#E8E8E8";
+						}else if(entityCount==1){
+							entityColor = "#93FFF7";
+						}else if(entityCount==2){
+							entityColor = "#E8E8E8";
+						}else if(entityCount==3){
+							entityColor = "#A8A8A8";
+						}else if(entityCount==4){
+							entityColor = "#E8E8E8";
+						}else if(entityCount==5){
+							entityColor = "#F68A09";
+						}else if(entityCount==6){
+							entityColor = "#E8E8E8";
+						}else if(entityCount==7){
+							entityColor = "#CDCA28";
+						}else if(entityCount==8){
+							entityColor = "#E8E8E8";
+						}else if(entityCount==9){
+							entityColor = "#9174BF";
+						}else if(entityCount==10){
+							entityColor = "#E8E8E8";
+						}else if(entityCount==11){
+							entityColor = "#4C80EE";
+						}else if(entityCount==12){
+							entityColor = "#E8E8E8";
+						}else if(entityCount==13){
+							entityColor = "#00E591";
+						}
+						entity.push(new rectangleModel(25, 25, entityColor, entityCorner, 188));
+						entity[entity.length-1].tag = entityTag;
+						entityDelay = gameArea.frameNum;
+						entityCount++;
+						entityTag++;
+					}
+				}
+				for(var i=0;i<entity.length;i++){
+					entity[i].frameNum++;
+					if(entity[i].tag==15){
+						entity[i].x-=0.25;
+					}
+					if(entity[i].tag>15){
+						if(entity[i].frameNum<=70){
+							entity[i].x-=2.75;
+							entity[i].entityShooting = false;
+						}
+						if(entity[i].frameNum>70 && entity[i].frameNum<=140){
+							entity[i].x-=0.25;
+							entity[i].y+=2.5;
+							entity[i].entityShooting = true;
+						}
+						if(entity[i].frameNum>140 && entity[i].frameNum<=210){
+							entity[i].x+=2.25;
+							entity[i].entityShooting = false;
+						}
+						if(entity[i].frameNum>210 && entity[i].frameNum<=280){
+							entity[i].x-=0.25;
+							entity[i].y-=2.5;
+							entity[i].entityShooting = false;
+						}
+						if(entity[i].frameNum>280){
+							entity[i].x-=0.25;
+							entity[i].frameNum = 0;
+							entity[i].entityShooting = false;
+						}
+					}
+					entity[i].update();
+				}
+				
+				//entity shooting
+				for(var i=0;i<entity.length;i++){
+					if(entity[i].entityShooting==true){
+						if(entity[i].tag==17){
+							if(entity[i].frameNum==71 || entity[i].frameNum%17.5==0){
+								x = entity[i].x-21;
+								y = entity[i].y+10.5;
+								entityBullets.push(new rectangleModel(21, 4, "#93FFF7", x, y));
+								entityBullets[entityBullets.length-1].tag = 30;
+							}
+						}
+						if(entity[i].tag==19){
+							if(entity[i].frameNum>=75 && entity[i].frameNum<=135 && entity[i].frameNum%15==0){
+								x = entity[i].x+12;
+								randomY = randomInt(0, 19);
+								y = entity[i].y+randomY;
+								entityBullets.push(new rectangleModel(12, 6, "#A8A8A8", x, y));
+								entityBullets[entityBullets.length-1].tag = 31;
+							}
+						}
+						if(entity[i].tag==21){
+							if(entity[i].frameNum==105){
+								x = entity[i].x-16;
+								y = entity[i].y;
+								splitNum = 32;
+								for(var k=0;k<5;k++){
+									entityBullets.push(new rectangleModel(16, 5, "#F68A09", x, y));
+									entityBullets[entityBullets.length-1].tag = splitNum;
+									if(k==2){
+										entityBullets.splice(entityBullets.length-1, 1);
+									}
+									splitNum++;
+									y+=5;
+								}
+							}
+						}
+						if(entity[i].tag==23){
+							if(entity[i].frameNum==88 || entity[i].frameNum==123){
+								x = entity[i].x;
+								y = entity[i].y+11.5;
+								for(var k=0;k<4;k++){
+									entityBullets.push(new rectangleModel(16, 2, "#CDCA28", x, y));
+									entityBullets[entityBullets.length-1].tag = 37;
+								}
+							}
+						}
+						if(entity[i].tag==25){
+							if(entity[i].frameNum==71){
+								entityNova = 38;
+							}
+							if(entity[i].frameNum%13==0){
+								entityBullets.push(new rectangleModel(13, 13, "#9174BF", entity[i].x-13, entity[i].y+6));
+								entityBullets[entityBullets.length-1].tag = entityNova;
+								entityNova++;
+							}
+						}
+						if(entity[i].tag==27){
+							if(entity[i].frameNum==71 || entity[i].frameNum%17.5==0){
+								x = entity[i].x+38;
+								y = entity[i].y+(entity[i].width/2);
+								entityBullets.push(new circleModel(x, y, 54, (3*Math.PI)/4, (5*Math.PI)/4, "#4C80EE"));
+								entityBullets[entityBullets.length-1].tag = 43;
+							}
+						}
+						if(entity[i].tag==29){
+							if(entity[i].frameNum==71 || entity[i].frameNum==136){
+								x = entity[i].x-1024;
+								y = entity[i].y+1;
+								entityBullets.push(new rectangleModel(1024, 23, "#00E591", x, y));
+								entityBullets[entityBullets.length-1].tag = 44;
+							}
+						}
+					}
+				}
+				
+				for(var i=entityBullets.length-1;i>=0;i--){
+					if(entityBullets[i].tag==30){
+						entityBullets[i].x-=4;
+					}
+					if(entityBullets[i].tag==31){
+						if(entityBullets[i].hasSpread==false){
+							entityBullets[i].spread = randomFloat(-0.25, 0.25);
+							entityBullets[i].hasSpread = true;
+						}
+						entityBullets[i].x-=3;
+						entityBullets[i].y+=entityBullets[i].spread;
+					}
+					if(entityBullets[i].tag>=32 && entityBullets[i].tag<=36){
+						entityBullets[i].x-=4;
+						if(entityBullets[i].tag==32){
+							entityBullets[i].y-=2;
+						}
+						if(entityBullets[i].tag==33){
+							entityBullets[i].y-=1;
+						}
+						if(entityBullets[i].tag==35){
+							entityBullets[i].y+=1;
+						}
+						if(entityBullets[i].tag==36){
+							entityBullets[i].y+=2;
+						}
+					}
+					if(entityBullets[i].tag==37){
+						if(entityBullets[i].hasSpread==false){
+							entityBullets[i].spread = randomFloat(-3, 3);
+							entityBullets[i].hasSpread = true;
+						}
+						entityBullets[i].x-=3;
+						entityBullets[i].y+=entityBullets[i].spread;
+					}
+					if(entityBullets[i].tag>=38 && entityBullets[i].tag<=42){
+						if(entityBullets[i].tag==38){
+							entityBullets[i].x-=3;
+							entityBullets[i].y-=1.5;
+						}
+						if(entityBullets[i].tag==39){
+							entityBullets[i].x-=3.5;
+							entityBullets[i].y-=1;
+						}
+						if(entityBullets[i].tag==40){
+							entityBullets[i].x-=4;
+						}
+						if(entityBullets[i].tag==41){
+							entityBullets[i].x-=4.5;
+							entityBullets[i].y+=1;
+						}
+						if(entityBullets[i].tag==42){
+							entityBullets[i].x-=5;
+							entityBullets[i].y+=1.5;
+						}
+					}
+					if(entityBullets[i].tag==43){
+						entityBullets[i].frameNum++;
+						if(entityBullets[i].frameNum==10){
+							entityBullets[i].x = -100;
+						}
+						entityBullets[i].x-=20;
+					}
+					if(entityBullets[i].tag==44){
+						for(var k=0;k<entity.length;k++){
+							if(entity[k].tag==29){
+								entityBullets[i].x = entity[k].x-1024;
+								entityBullets[i].y = entity[k].y+1;
+								if(gameArea.frameNum%10==0){
+									entityBullets[i].color = "#DEFF0F";
+								}else{
+									entityBullets[i].color = "#00E591";
+								}
+								if(entity[k].frameNum==75 || entity[k].frameNum==140){
+									entityBullets.splice(i, 1);
+								}
+							}
+						}
+					}
+					entityBullets[i].update();
+				}
+				entityOut();
+				entityBulletOut();
+				entityBulletCollision();
+				playerEntityBulletCollision();
+				playerEntityCollision();
+				beamEntityBulletCollision();
+				
 				//pick-up spawning and movement
 				if(gameArea.frameNum%3600==0){
-					weaponSpawn = randomInt(1,7);
+					weaponSpawn = randomInt(7,7);
 					x = gameArea.canvas.width+9;
 					y = randomInt(9, 557);
 					if(weaponSpawn==1){
@@ -959,7 +1214,7 @@
 								basicEnemies.splice(k, 1);
 								points+=10*enemyMultiplier;
 							}
-							if(playerBullets[i].bulletTag!=14 && playerBullets[i].type!="melee"){
+							if(playerBullets[i].tag!=14 && playerBullets[i].type!="melee"){
 								playerBullets.splice(i, 1);
 							}
 						}
@@ -986,7 +1241,7 @@
 			
 			function beamBasicBulletCollision(){
 				for(var i=playerBullets.length-1;i>=0;i--){
-					if(playerBullets[i].bulletTag==14){
+					if(playerBullets[i].tag==14){
 						for(var k=basicBullets.length-1;k>=0;k--){
 							if(rectRectCollision(playerBullets[i], basicBullets[k])&& invulnerability==false){
 								basicBullets.splice(k, 1);
@@ -1013,7 +1268,7 @@
 								chargerEnemies.splice(k, 1);
 								points+=10*enemyMultiplier;
 							}
-							if(playerBullets[i].bulletTag!=14 && playerBullets[i].type!="melee"){
+							if(playerBullets[i].tag!=14 && playerBullets[i].type!="melee"){
 								playerBullets.splice(i, 1);
 							}
 						}
@@ -1062,7 +1317,7 @@
 								lateralEnemies.splice(k, 1);
 								points+=30*enemyMultiplier;
 							}
-							if(playerBullets[i].bulletTag!=14 && playerBullets[i].type!="melee"){
+							if(playerBullets[i].tag!=14 && playerBullets[i].type!="melee"){
 								playerBullets.splice(i, 1);
 							}
 						}
@@ -1098,7 +1353,7 @@
 			
 			function beamLateralTopBulletCollision(){
 				for(var i=playerBullets.length-1;i>=0;i--){
-					if(playerBullets[i].bulletTag==14){
+					if(playerBullets[i].tag==14){
 						for(var k=lateralTopBullets.length-1;k>=0;k--){
 							if(rectRectCollision(playerBullets[i], lateralTopBullets[k])&& invulnerability==false){
 								lateralTopBullets.splice(k, 1);
@@ -1110,7 +1365,7 @@
 			
 			function beamLateralBottomBulletCollision(){
 				for(var i=playerBullets.length-1;i>=0;i--){
-					if(playerBullets[i].bulletTag==14){
+					if(playerBullets[i].tag==14){
 						for(var k=lateralBottomBullets.length-1;k>=0;k--){
 							if(rectRectCollision(playerBullets[i], lateralBottomBullets[k])&& invulnerability==false){
 								lateralBottomBullets.splice(k, 1);
@@ -1137,7 +1392,7 @@
 								bouncerEnemies.splice(k, 1);
 								points+=20*enemyMultiplier;
 							}
-							if(playerBullets[i].bulletTag!=14 && playerBullets[i].type!="melee"){
+							if(playerBullets[i].tag!=14 && playerBullets[i].type!="melee"){
 								playerBullets.splice(i, 1);
 							}
 						}
@@ -1170,7 +1425,7 @@
 								snakeEnemies.splice(k, 1);
 								points+=20*enemyMultiplier;
 							}
-							if(playerBullets[i].bulletTag!=14 && playerBullets[i].type!="melee"){
+							if(playerBullets[i].tag!=14 && playerBullets[i].type!="melee"){
 								playerBullets.splice(i, 1);
 							}
 						}
@@ -1227,7 +1482,7 @@
 								blobBottom2Enemies.push(new rectangleModel(28, 28, "#A6E1A1", x, y));
 								blob1Enemies.splice(k, 1);
 							}
-							if(playerBullets[i].bulletTag!=14 && playerBullets[i].type!="melee"){
+							if(playerBullets[i].tag!=14 && playerBullets[i].type!="melee"){
 								playerBullets.splice(i, 1);
 							}
 						}
@@ -1243,7 +1498,7 @@
 								blobBottom3Enemies.push(new rectangleModel(20, 20, "#A6E1A1", x, y));
 								blobTop2Enemies.splice(k, 1);
 							}
-							if(playerBullets[i].bulletTag!=14 && playerBullets[i].type!="melee"){
+							if(playerBullets[i].tag!=14 && playerBullets[i].type!="melee"){
 								playerBullets.splice(i, 1);
 							}
 						}
@@ -1259,7 +1514,7 @@
 								blobBottom3Enemies.push(new rectangleModel(20, 20, "#A6E1A1", x, y));
 								blobBottom2Enemies.splice(k, 1);
 							}
-							if(playerBullets[i].bulletTag!=14 && playerBullets[i].type!="melee"){
+							if(playerBullets[i].tag!=14 && playerBullets[i].type!="melee"){
 								playerBullets.splice(i, 1);
 							}
 						}
@@ -1271,7 +1526,7 @@
 								blobTop3Enemies.splice(k, 1);
 								points+=10*enemyMultiplier;
 							}
-							if(playerBullets[i].bulletTag!=14 && playerBullets[i].type!="melee"){
+							if(playerBullets[i].tag!=14 && playerBullets[i].type!="melee"){
 								playerBullets.splice(i, 1);
 							}
 						}
@@ -1283,7 +1538,7 @@
 								blobBottom3Enemies.splice(k, 1);
 								points+=10*enemyMultiplier;
 							}
-							if(playerBullets[i].bulletTag!=14 && playerBullets[i].type!="melee"){
+							if(playerBullets[i].tag!=14 && playerBullets[i].type!="melee"){
 								playerBullets.splice(i, 1);
 							}
 						}
@@ -1328,7 +1583,7 @@
 								kamikazeEnemies.splice(k, 1);
 								points+=40*enemyMultiplier;
 							}
-							if(playerBullets[i].bulletTag!=14 && playerBullets[i].type!="melee"){
+							if(playerBullets[i].tag!=14 && playerBullets[i].type!="melee"){
 								playerBullets.splice(i, 1);
 							}
 						}
@@ -1369,7 +1624,7 @@
 								dashEnemies.splice(k, 1);
 								points+=20*enemyMultiplier;
 							}
-							if(playerBullets[i].bulletTag!=14 && playerBullets[i].type!="melee"){
+							if(playerBullets[i].tag!=14 && playerBullets[i].type!="melee"){
 								playerBullets.splice(i, 1);
 							}
 						}
@@ -1402,7 +1657,7 @@
 								flamethrowerEnemies.splice(k, 1);
 								points+=50*enemyMultiplier;
 							}
-							if(playerBullets[i].bulletTag!=14 && playerBullets[i].type!="melee"){
+							if(playerBullets[i].tag!=14 && playerBullets[i].type!="melee"){
 								playerBullets.splice(i, 1);
 							}
 						}
@@ -1444,7 +1699,7 @@
 								barrierLazer.splice(k, 1);
 								points+=40*enemyMultiplier;
 							}
-							if(playerBullets[i].bulletTag!=14 && playerBullets[i].type!="melee"){
+							if(playerBullets[i].tag!=14 && playerBullets[i].type!="melee"){
 								playerBullets.splice(i, 1);
 							}
 						}
@@ -1464,6 +1719,116 @@
 				for(var i=0;i<barrierEnemies.length;i++){
 					if(rectRectCollision(player, barrierEnemies[i])&& invulnerability==false){
 						death();
+					}
+				}
+			}
+			
+			function entityOut(){
+				for(var i=0;i<entity.length;i++){
+					if(entity[i].tag==15){
+						if(entity[i].x+150<0){
+							entity.splice(i);
+							entityBullets.splice(i);
+						}
+					}
+				}
+			}
+			
+			function entityBulletOut(){
+				for(var i=0;i<entityBullets.length;i++){
+					if(entityBullets[i].x<-1024 || entityBullets[i].y<-100 || entityBullets[i].y>676){
+						entityBullets.splice(i, 1);
+					}
+				}
+			}
+			
+			/function entityBulletCollision(){
+				for(var i=playerBullets.length-1;i>=0;i--){
+					for(var k=entity.length-1;k>=0;k--){
+						if((rectRectCollision(playerBullets[i], entity[k]) || rectCircCollision(entity[k], playerBullets[i]))&& invulnerability==false){
+							if(entity[k].tag!=15 && entity[k].tag%2==1){
+								entity[k].health-=bulletDamage;
+								if(entity[k].health<=-4*enemyMultiplier){
+									if(entity[k].tag==29){
+										for(var j=entityBullets.length-1;j>=0;j--){
+											if(entityBullets[j].tag==44){
+												entityBullets.splice(j, 1);
+											}
+										}
+									}
+									entity.splice(k, 1);
+									points+=40*enemyMultiplier;
+								}
+							}
+							if(entity[k].tag==15){
+								if(gunType==1){
+									entity[k].health-=bulletDamage*2;
+								}
+								if(gunType==2){
+									entity[k].health-=bulletDamage*3;
+								}
+								if(gunType==3){
+									entity[k].health-=bulletDamage*1.5;
+								}
+								if(gunType==4){
+									entity[k].health-=bulletDamage/3;
+								}
+								if(gunType==5){
+									entity[k].health-=bulletDamage*3;
+								}
+								if(gunType==6){
+									entity[k].health-=bulletDamage/6;
+								}
+								if(gunType==7){
+									entity[k].health-=bulletDamage/2;
+								}
+								if(entity[k].health<=-50*enemyMultiplier){
+									entity.splice(k);
+									for(var j=entityBullets.length-1;j>=0;j--){
+										if(entityBullets[j].tag==44){
+											entityBullets.splice(j, 1);
+										}
+									}
+									points+=500*enemyMultiplier;
+								}
+							}
+							if(playerBullets[i].tag!=14 && playerBullets[i].type!="melee"){
+								playerBullets.splice(i, 1);
+							}
+						}
+					}
+				}
+			}
+			
+			function playerEntityBulletCollision(){
+				for(var i=0;i<entityBullets.length;i++){
+					if((rectRectCollision(player, entityBullets[i]) || rectCircCollision(player, entityBullets[i])) && invulnerability==false){
+						if(entityBullets[i].tag!=44 && entityBullets[i].tag!=43){
+							entityBullets.splice(i, 1);
+						}
+						death();
+					}
+				}
+			}
+			
+			function playerEntityCollision(){
+				for(var i=0;i<entity.length;i++){
+					if(rectRectCollision(player, entity[i])&& invulnerability==false){
+						death();
+					}
+				}
+			}
+			
+			function beamEntityBulletCollision(){
+				for(var i=playerBullets.length-1;i>=0;i--){
+					if(playerBullets[i].tag==14){
+						for(var k=entityBullets.length-1;k>=0;k--){
+							if(rectRectCollision(playerBullets[i], entityBullets[k])&& invulnerability==false){
+								if(entityBullets[k].tag!=44){
+									entityBullets.splice(k, 1);
+								}
+							}
+						}
 					}
 				}
 			}
@@ -1531,8 +1896,9 @@
 				this.snakeCycle = 0;
 				this.hasSpread = false;
 				this.spread = 0;
-				this.bulletTag = 0;
+				this.tag = 0;
 				this.dash = false;
+				this.entityShooting = false;
 				this.update = function(){
 					ctx = gameArea.context;
 					if(this.type=="text"){
