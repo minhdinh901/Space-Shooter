@@ -854,7 +854,7 @@
 				playerBarrierCollision();
 				
 				//entity spawning and movement
-				if(gameArea.frameNum==1 || frameInterval(18000)){	
+				if(frameInterval(18000)){	
 					entity.push(new rectangleModel(100, 100, "#7E037A", gameArea.canvas.width, 238));
 					entity[entity.length-1].tag = 15;
 					entityDelay = gameArea.frameNum;
