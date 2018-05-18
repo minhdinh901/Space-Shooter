@@ -1102,7 +1102,7 @@
 				
 				//pick-up spawning and movement
 				if(gameArea.frameNum%3600==0){
-					weaponSpawn = randomInt(7,7);
+					weaponSpawn = randomInt(1,7);
 					x = gameArea.canvas.width+9;
 					y = randomInt(9, 557);
 					if(weaponSpawn==1){
@@ -1742,7 +1742,7 @@
 				}
 			}
 			
-			/function entityBulletCollision(){
+			function entityBulletCollision(){
 				for(var i=playerBullets.length-1;i>=0;i--){
 					for(var k=entity.length-1;k>=0;k--){
 						if((rectRectCollision(playerBullets[i], entity[k]) || rectCircCollision(entity[k], playerBullets[i]))&& invulnerability==false){
