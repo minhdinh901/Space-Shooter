@@ -1843,7 +1843,7 @@
 						}
 						if(pickUps[i].type=="machine gun"){
 							gunType = 2;
-							bulletDamage = 0.4;
+							bulletDamage = 0.6;
 						}
 						if(pickUps[i].type=="split"){
 							gunType = 3;
