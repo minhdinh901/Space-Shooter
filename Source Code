@@ -1839,7 +1839,7 @@
 					if(rectCircCollision(player, pickUps[i])){
 						if(pickUps[i].type=="lazer"){
 							gunType = 1;
-							bulletDamage = 0.6;
+							bulletDamage = 1;
 						}
 						if(pickUps[i].type=="machine gun"){
 							gunType = 2;
